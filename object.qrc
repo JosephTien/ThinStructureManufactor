@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>object/cylinder10X10.obj</file>
+        <file>object/cube10X10.obj</file>
+        <file>object/pillar1X10.obj</file>
+        <file>object/column1X10.obj</file>
+        <file>object/cylinder10X10_dense.obj</file>
+        <file>object/cube10X10_dense.obj</file>
+        <file>object/s2_cube10X10.obj</file>
+        <file>object/s2_cylinder10X10.obj</file>
+        <file>object/sphere10X10.obj</file>
+    </qresource>
+</RCC>
