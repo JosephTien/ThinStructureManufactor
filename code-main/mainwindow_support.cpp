@@ -18,6 +18,7 @@ void MainWindow_support::putStdModel(const char * name,QVector3D color, QVector3
     getModel(var->connectTarNum)->rotateTo(rotate);
     ui->glMain->setVis(var->connectTarNum,1);
     getModel(var->connectTarNum)->applyModelMatrix_force();
+    getModel(var->connectTarNum)->renewByMatrix();
     ui->glMain->reBuffer(var->connectTarNum);
 }
 
@@ -118,6 +119,24 @@ void MainWindow_support::genTube(){
         applyCSG('-', getTarNum()-2, getTarNum()-1);
         ui->glMain->deleteTar(getTarNum()-1);
         /*
+        if(ts->neighborset[ts->edges[i*2]].size()==1){
+            putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),
+                        QVector3D(oR,oR,oR),
+                        v1,
+                        QVector3D(0,0,1));
+            applyCSG('+', getTarNum()-2, getTarNum()-1);
+            ui->glMain->deleteTar(getTarNum()-1);
+        }
+        if(ts->neighborset[ts->edges[i*2+1]].size()==1){
+            putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),
+                        QVector3D(oR,oR,oR),
+                        v2,
+                        QVector3D(0,0,1));
+            applyCSG('+', getTarNum()-2, getTarNum()-1);
+            ui->glMain->deleteTar(getTarNum()-1);
+        }
+        */
+        /*
         int cur = getTarNum()-1;
         int tar = getTarNum();
         ui->glMain->copyObj(cur);
@@ -170,8 +189,11 @@ void MainWindow_support::genCut(int tar, QVector3D c, QVector3D n){
     ui->glMain->copyObj(tar);
     putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
                 QVector3D( 10, 10, 10),
-                c+QVector3D( 0, 0, 500),
+                c + n.normalized()*500,
                 n);
+    //getModel(getTarNum()-1)->translate_pure(n.normalized()*500);
+    //getModel(getTarNum()-1)->applyModelMatrix_force();
+
     applyCSG('-', tar, getTarNum()-1);
     applyCSG('*', getTarNum()-2, getTarNum()-1);
     ui->glMain->deleteTar(getTarNum()-1);
@@ -300,12 +322,20 @@ void MainWindow_support::genTest_3()
     /**************************************************/
     genCut(1,QVector3D(oR*50         ,0             ,0),QVector3D(1,  0,0));
     genCut(1,QVector3D(0             ,oR*50         ,0),QVector3D(0,  1,0));
-    genCut(1,QVector3D(oR*50/1.41421f,oR*50/1.41421f,0),QVector3D(-1,-1,0));
+    genCut(1,QVector3D(-oR*50/1.41421f,-oR*50/1.41421f,0),QVector3D(-1,-1,0));
     /**************************************************/
-
+    putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),
+                QVector3D(nR,nR,nR),
+                QVector3D(0,0,0),
+                QVector3D(0,0,1));
+    /**************************************************/
+    applyCSG('-', 5, 2);
+    applyCSG('-', 5, 3);
+    applyCSG('-', 5, 4);
     applyCSG('-', 1, 0);
     applyCSG('-', 2, 0);
     applyCSG('-', 3, 0);
     applyCSG('-', 4, 0);
-    ui->glMain->deleteTar(getTarNum()-1);
+    applyCSG('-', 5, 0);
+
 }

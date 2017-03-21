@@ -35,6 +35,16 @@ void MainWindow::on_btnOutput_clicked()
     support.iglMachine.writeFile("mainobj",str);
 }
 
+void MainWindow::on_btnOutputAll_clicked(){
+    for(int i=0;i<ui->glMain->getTarnum();i++){
+        support.iglMachine.reset();
+        support.iglMachine.put("mainobj", support.getModel(i)->vertices, support.getModel(i)->indices);
+        char str[20];
+        sprintf(str,"output_%d.obj", i);
+        support.iglMachine.writeFile("mainobj",str);
+    }
+}
+
 void MainWindow::on_btnLoad_Manu_clicked()
 {
     std::string path = QFileDialog::getOpenFileName(this, tr("Load obj"), "..", tr("Object Files(*.obj)")).toStdString();
@@ -83,15 +93,7 @@ void MainWindow::on_btnCut_clicked(){
     for(int i=0;i<tarnum;i++){
         QVector3D c = QVector3D(0,0,0);
         QVector3D n = QVector3D(0,0,1);
-
-        int cur = i;
-        int tar = ui->glMain->getTarnum();
-        ui->glMain->copyObj(cur);
-
-        support.putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),QVector3D(10,10,1),c-QVector3D(0,0,50),n);
-        support.applyCSG('-',cur,ui->glMain->getTarnum()-1);
-        support.applyCSG('*',tar,ui->glMain->getTarnum()-1);
-        ui->glMain->deleteTar(ui->glMain->getTarnum()-1);
+        support.genCut(i,QVector3D(0,0,0),QVector3D(0,0,1));
     }
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
@@ -109,6 +111,8 @@ void MainWindow::on_btnTest_2_clicked(){
 }
 void MainWindow::on_btnTest_3_clicked(){
     support.genTest_3();
+    on_btnCut_clicked();
+    on_btnOutputAll_clicked();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
