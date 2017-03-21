@@ -67,14 +67,15 @@ public:
     void generateCube(QVector3D pup,QVector3D plow);
     void genTrack(QVector3D center, QVector3D platenorm, float radii, bool minerr);
     void genSpiralCav(QVector3D center, QVector3D platenorm, float radii,float hrate);
-    void genSpiral(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float dec, float decu);
-    void genSpiral_withhead(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float dec, float decu, float headAngle);
+    void genSpiral(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float startAngle, float dec, float decu);
+    void genSpiral_withhead(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float startAngle, float dec, float decu, float headAngle);
     void generateDisc(QVector3D center, QVector3D platenorm, float radii, int tarIdx_ass);
     void generateAssitDisc(int tarObj);
     void generateAssitDisc(int tarObj, QVector3D &c, float &r);
     void generateAssitDisc(QVector3D center, QVector3D platnorm, float radii);
     void generateAssitDisc(QVector3D center, QVector3D platnorm, float radii, int tar);
     void generateAssitPillar(QVector3D c, QVector3D n, float r, float l);
+    void genSlotCav(QVector3D c,QVector3D dir, QVector3D up);
     /********************/
     int curSelecTar = 0;
     int assistMode = 0;

@@ -89,6 +89,18 @@ void MainWindow_support::mergeAll(){
     }
 }
 
+void MainWindow_support::mergeAll(int from, int to){
+    while(from<to){
+        for(int i=from;i<from+(to-from+1)/2;i++){
+            applyCSG('+', i, i+(to-from+1+1)/2);
+        }
+        for(int i=to; i>=from+(to-from+1+1)/2; i--){
+            ui->glMain->deleteTar(i);
+        }
+        to = from+(to-from+1+1)/2-1;
+    }
+}
+
 void MainWindow_support::genTube(){
     ThinStruct * ts = &var->ts;
     float iR=ts->innerR/50,oR=ts->outerR/50,nR=ts->nutR/50;
@@ -105,6 +117,15 @@ void MainWindow_support::genTube(){
                     v2-v1);
         applyCSG('-', getTarNum()-2, getTarNum()-1);
         ui->glMain->deleteTar(getTarNum()-1);
+        /*
+        int cur = getTarNum()-1;
+        int tar = getTarNum();
+        ui->glMain->copyObj(cur);
+        ui->glMain->genSlotCav((v1+v2)/2, v2-v1, QVector3D(0,0,1));
+        applyCSG('-',cur,getTarNum()-1);
+        applyCSG('*',tar,getTarNum()-1);
+        ui->glMain->deleteTar(getTarNum()-1);
+        */
     }
 }
 void MainWindow_support::genNut(){
@@ -117,8 +138,8 @@ void MainWindow_support::genNut(){
                     QVector3D(0,0,1));
         bool caved=false;
         for(auto idx : ts->neighborset[i]){
-            QVector3D v1 = ts->getVectice(ts->edges[i]);
-            QVector3D v2 = ts->getVectice(ts->edges[idx]);
+            QVector3D v1 = ts->getVectice(i);
+            QVector3D v2 = ts->getVectice(idx);
             putStdModel("cylinder10X10", QVector3D(0.5f,0.5f,0.5f),
                         QVector3D(iR,iR,(v1-v2).length()/100),
                         (v1+v2)/2,
@@ -132,6 +153,7 @@ void MainWindow_support::genNut(){
                         v2-v1);
             applyCSG('-', getTarNum()-2, getTarNum()-1);
             ui->glMain->deleteTar(getTarNum()-1);
+
             if(!caved){
                 putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),
                             QVector3D(iR,iR,iR),
@@ -143,4 +165,91 @@ void MainWindow_support::genNut(){
             }
         }
     }
+}
+void MainWindow_support::genTest_1(){
+    readST();
+    ThinStruct * ts = &var->ts;
+    float iR=ts->innerR/50,oR=ts->outerR/50,nR=ts->nutR/50;
+    for(int i=0;i<ts->vertices.size()/3 -1;i++){ // ****************** -1 on purpose
+        putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),
+                    QVector3D(oR,oR,oR),
+                    QVector3D(ts->vertices[i*3], ts->vertices[i*3+1], ts->vertices[i*3+2]),
+                    QVector3D(0,0,1));
+    }
+    for(int i=0;i<ts->edges.size()/2;i++){
+        QVector3D v1 = ts->getVectice(ts->edges[i*2]);
+        QVector3D v2 = ts->getVectice(ts->edges[i*2+1]);
+        putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                    QVector3D(oR,oR,(v1-v2).length()/100),
+                    (v1+v2)/2,
+                    v2-v1);
+    }
+    mergeAll(1, getTarNum()-1);
+
+    /************************************************/
+    ui->glMain->genSpiral(QVector3D( oR*50 + iR*50,0,oR*50), QVector3D(0,0,1), oR*50 /1.41421f, 1, 100, 90, 45, 0.5f, 0.5f);
+    applyCSG('+', 1, 2);
+    ui->glMain->deleteTar(getTarNum()-1);
+    /*
+    ui->glMain->genSpiral(QVector3D( oR*50 + iR*50,0,-oR*50), QVector3D(0,0,-1), oR*50  /1.41421f , 1, 100, 90, 45, 0.5f, 0.5f);
+    applyCSG('+', 1, 2);
+    ui->glMain->deleteTar(getTarNum()-1);
+    */
+
+    /************************************************/
+
+    ui->glMain->copyObj(1);
+    putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                QVector3D( 10.0f, 10.0f, 10.0f),
+                QVector3D( oR*50 + iR*50 + 500,0,0),
+                QVector3D(0,0,1));
+    /*
+    putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                QVector3D( iR, iR, 1.0f),
+                QVector3D( oR*50 + iR*50,0,0),
+                QVector3D(0,0,1));
+    applyCSG('+', getTarNum()-2, getTarNum()-1);
+    ui->glMain->deleteTar(getTarNum()-1);
+    */
+
+    applyCSG('-', 1, 3);
+    applyCSG('*', 2, 3);
+    applyCSG('-', 1, 0);
+    applyCSG('-', 2, 0);
+    ui->glMain->deleteTar(getTarNum()-1);
+
+    /************************************************///ui->btnCut->click();
+    for(int i=1;i<2;i++){
+        QVector3D c = QVector3D(0,0,0);
+        QVector3D n = QVector3D(0,0,1);
+
+        int cur = i;
+        int tar = ui->glMain->getTarnum();
+        ui->glMain->copyObj(cur);
+
+        putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),QVector3D(10,10,1),c-QVector3D(0,0,50),n);
+        applyCSG('-',cur,ui->glMain->getTarnum()-1);
+        applyCSG('*',tar,ui->glMain->getTarnum()-1);
+        ui->glMain->deleteTar(ui->glMain->getTarnum()-1);
+    }
+    for(int i=2;i<3;i++){
+        QVector3D c = QVector3D(0,0,0);
+        QVector3D n = QVector3D(0,0,1);
+
+        int cur = i;
+        int tar = ui->glMain->getTarnum();
+        ui->glMain->copyObj(cur);
+
+        putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),QVector3D(10,1,10),c-QVector3D(0,50,0),n);
+        applyCSG('-',cur,ui->glMain->getTarnum()-1);
+        applyCSG('*',tar,ui->glMain->getTarnum()-1);
+        ui->glMain->deleteTar(ui->glMain->getTarnum()-1);
+    }
+    /************************************************/
+    float tr = 0.55f;
+    putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),QVector3D(tr,tr,tr),QVector3D( oR*50 + iR*50,0,oR*50+tr*50),QVector3D(0,0,1));
+    ui->glMain->genSpiral(QVector3D( oR*50 + iR*50,0,oR*50), QVector3D(0,0,1), oR*50  /1.41421f , 1, 100, 90, 45, 0.5f, 0.5f);
+    applyCSG('-',getTarNum()-2,getTarNum()-1);
+    ui->glMain->deleteTar(ui->glMain->getTarnum()-1);
+
 }

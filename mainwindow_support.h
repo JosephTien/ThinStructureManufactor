@@ -28,8 +28,10 @@ public:
     void fill(int tar);
     void readST();
     void mergeAll();
+    void mergeAll(int from, int to);
     void genTube();
     void genNut();
+    void genTest_1();
 
 };
 

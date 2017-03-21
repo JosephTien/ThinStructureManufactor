@@ -1,5 +1,76 @@
 #include <modelviewer.h>
 using namespace std;
+void ModelViewer::genSlotCav(QVector3D cent,QVector3D dir, QVector3D up){
+    dir.normalize();
+    up.normalize();
+    QVector3D left = QVector3D::crossProduct(up, dir).normalized();
+    std::vector<QVector3D> vertices;
+    std::vector<unsigned int> indices;
+    float l = 100,r = 50, d1 = 10, d2 = 50;
+    vertices.push_back(cent-dir*l);
+    vertices.push_back(cent+dir*l);
+    vertices.push_back(cent-dir*l+left*r-up*d1);
+    vertices.push_back(cent+dir*l+left*r-up*d1);
+    vertices.push_back(cent-dir*l+left*r-up*d2);
+    vertices.push_back(cent+dir*l+left*r-up*d2);
+    vertices.push_back(cent-dir*l-left*r-up*d1);
+    vertices.push_back(cent+dir*l-left*r-up*d1);
+    vertices.push_back(cent-dir*l-left*r-up*d2);
+    vertices.push_back(cent+dir*l-left*r-up*d2);
+    indices.push_back(0);indices.push_back(1);indices.push_back(3);
+    indices.push_back(0);indices.push_back(3);indices.push_back(2);
+    indices.push_back(2);indices.push_back(3);indices.push_back(5);
+    indices.push_back(2);indices.push_back(5);indices.push_back(4);
+    indices.push_back(0);indices.push_back(7);indices.push_back(1);
+    indices.push_back(0);indices.push_back(6);indices.push_back(7);
+    indices.push_back(6);indices.push_back(9);indices.push_back(7);
+    indices.push_back(6);indices.push_back(8);indices.push_back(9);
+    indices.push_back(4);indices.push_back(5);indices.push_back(8);
+    indices.push_back(8);indices.push_back(5);indices.push_back(9);
+    indices.push_back(0);indices.push_back(2);indices.push_back(6);
+    indices.push_back(6);indices.push_back(2);indices.push_back(4);
+    indices.push_back(6);indices.push_back(4);indices.push_back(8);
+    indices.push_back(1);indices.push_back(7);indices.push_back(3);
+    indices.push_back(3);indices.push_back(7);indices.push_back(9);
+    indices.push_back(3);indices.push_back(9);indices.push_back(5);
+    /****************************************/
+    vector<float> normals;
+    vector<float> empty;
+    vector<float> positions;
+    vector<float> colors;
+    QVector3D c;
+    for(int i=0;i<vertices.size();i++){
+        c+=vertices[i];
+    }
+    c/=vertices.size();
+    for(int i=0;i<vertices.size();i++){
+        positions.push_back(vertices[i].x());
+        positions.push_back(vertices[i].y());
+        positions.push_back(vertices[i].z());
+        normals.push_back(vertices[i].x()-c.x());
+        normals.push_back(vertices[i].y()-c.y());
+        normals.push_back(vertices[i].z()-c.z());
+        colors.push_back(0.5f);
+        colors.push_back(0.5f);
+        colors.push_back(1);
+    }
+    makeCurrent();
+    vertexAttribute[tarnum].Destroy();
+    vertexAttribute[tarnum].Create();
+    vertexAttribute[tarnum].BufferData(positions, normals, empty, colors, indices);
+    setVis(tarnum,1);
+    //vertexAttribute[curtar].Color3f(0.5f, 1.0f, 0.5f);
+    update();
+    viewMgr->modelMgr[tarnum].Reset();
+    viewMgr->modelMgr[tarnum].vertices = positions;
+    viewMgr->modelMgr[tarnum].indices = indices;
+    viewMgr->modelMgr[tarnum].vertices_ori = positions;
+    viewMgr->modelMgr[tarnum].normals = normals;
+    viewMgr->modelMgr[tarnum].colors = colors;
+    tarnum++;
+
+}
+
 void ModelViewer::generateCube(QVector3D pup,QVector3D plow){
     makeCurrent();
     float rec[] = {-1,-1,-1,1,-1,-1,-1,1,-1,1,1,-1,-1,-1,1,1,-1,1,-1,1,1,1,1,1};
@@ -286,11 +357,11 @@ void ModelViewer::genSpiralCav(QVector3D center, QVector3D platenorm, float radi
 }
 
 int cornNum = 4;
-void ModelViewer::genSpiral_withhead(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float dec, float decu, float headAngle){
+void ModelViewer::genSpiral_withhead(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float startAngle, float dec, float decu, float headAngle){
 
     float h = radii * hrate, r = radii;
     platenorm.normalize();
-    platenorm*=-1;
+    //platenorm*=-1;
     QMatrix4x4 rotationMat;
     rotationMat.rotate( acosf(QVector3D::dotProduct(platenorm,QVector3D(0,0,1)))/(2*M_PI)*360, QVector3D::crossProduct(platenorm,QVector3D(0,0,1)));
 
@@ -301,7 +372,7 @@ void ModelViewer::genSpiral_withhead(QVector3D center, QVector3D platenorm, floa
         //float rr = std::abs((float)(i-(div/2))/(div/2));
         float rr = (float)(i-(div))/div;
         r = radii * (1-((1-dec)* rr));
-        float curangle = (angle / div * i) / 360 * 2 *M_PI;
+        float curangle = (angle / div * i) / 360 * 2 *M_PI + startAngle/180*M_PI;
         for(int j=0;j<cornNum;j++){
             vertices.push_back(QVector3D(r*cos(curangle+M_PI*2*j/cornNum), r*sin(curangle+M_PI*2*j/cornNum), h / div * i));
         }
@@ -403,13 +474,13 @@ void ModelViewer::genSpiral_withhead(QVector3D center, QVector3D platenorm, floa
     tarnum++;
 }
 
-void ModelViewer::genSpiral(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float dec, float decu){
+void ModelViewer::genSpiral(QVector3D center, QVector3D platenorm, float radii,float hrate, int div, float angle, float startAngle, float dec, float decu){
     float innerFix = 0.25f;
     //float angle = 90;
     float h = radii * hrate, r = radii;
     //int div = DIV;
     platenorm.normalize();
-    platenorm*=-1;
+    //platenorm*=-1;
     QMatrix4x4 rotationMat;
     rotationMat.rotate( acosf(QVector3D::dotProduct(platenorm,QVector3D(0,0,1)))/(2*M_PI)*360, QVector3D::crossProduct(platenorm,QVector3D(0,0,1)));
 
@@ -420,7 +491,7 @@ void ModelViewer::genSpiral(QVector3D center, QVector3D platenorm, float radii,f
         //float rr = std::abs((float)(i-(div/2))/(div/2));
         float rr = (float)(i-(div))/div;
         r = radii * (1-((1-dec)* rr)) - innerFix;
-        float curangle = (angle / div * i) / 360 * 2 *M_PI;
+        float curangle = (angle / div * i) / 360 * 2 *M_PI + startAngle/180*M_PI;
         for(int j=0;j<cornNum;j++){
             vertices.push_back(QVector3D(r*cos(curangle+M_PI*2*j/cornNum), r*sin(curangle+M_PI*2*j/cornNum), h / div * i));
         }

@@ -79,8 +79,9 @@ void MainWindow::on_btnGenNut_clicked(){
 }
 
 void MainWindow::on_btnCut_clicked(){
+
     int tarnum = ui->glMain->getTarnum();
-    for(int i=1;i<tarnum;i++){
+    for(int i=0;i<tarnum;i++){
         QVector3D c = QVector3D(0,0,0);
         QVector3D n = QVector3D(0,0,1);
 
@@ -97,6 +98,14 @@ void MainWindow::on_btnCut_clicked(){
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
 
+void MainWindow::on_btnTest_1_clicked(){
+    support.genTest_1();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
+}
+
+/****************************************/
+
 void MainWindow::on_cmbbObject_currentIndexChanged(int index)
 {
     if(index == ui->glMain->getTarnum())ui->glMain->setAllVis(1);
@@ -108,7 +117,6 @@ void MainWindow::on_cmbbObject_currentIndexChanged(int index)
      ui->glMain->tarObj = var.tarObj;
      ui->glMain->update();
 }
-/****************************************/
 
 void MainWindow::mousePressEvent(QMouseEvent *){
     this->setFocus();

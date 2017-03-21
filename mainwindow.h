@@ -34,6 +34,8 @@ private slots:
 
     void on_btnCut_clicked();
 
+    void on_btnTest_1_clicked();
+
     void on_cmbbObject_currentIndexChanged(int index);
 
     void mousePressEvent(QMouseEvent *event);
