@@ -24,6 +24,8 @@ private slots:
 
     void on_btnOutput_clicked();
 
+    void on_btnOutputAll_clicked();
+
     void on_btnLoad_Manu_clicked();
 
     void on_btnReadST_clicked();

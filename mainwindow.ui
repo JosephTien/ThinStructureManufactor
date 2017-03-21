@@ -41,7 +41,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>120</y>
+      <y>130</y>
       <width>120</width>
       <height>30</height>
      </rect>
@@ -164,6 +164,19 @@
      <string>Test_3</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnOutputAll">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>100</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Output All</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -171,7 +184,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
