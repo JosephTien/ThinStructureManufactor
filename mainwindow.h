@@ -36,6 +36,10 @@ private slots:
 
     void on_btnTest_1_clicked();
 
+    void on_btnTest_2_clicked();
+
+    void on_btnTest_3_clicked();
+
     void on_cmbbObject_currentIndexChanged(int index);
 
     void mousePressEvent(QMouseEvent *event);

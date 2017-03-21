@@ -31,7 +31,10 @@ public:
     void mergeAll(int from, int to);
     void genTube();
     void genNut();
+    void genCut(int tar, QVector3D c, QVector3D n);
     void genTest_1();
+    void genTest_2();
+    void genTest_3();
 
 };
 

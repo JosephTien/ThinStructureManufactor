@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -100,6 +99,16 @@ void MainWindow::on_btnCut_clicked(){
 
 void MainWindow::on_btnTest_1_clicked(){
     support.genTest_1();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
+}
+void MainWindow::on_btnTest_2_clicked(){
+    support.genTest_2();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
+}
+void MainWindow::on_btnTest_3_clicked(){
+    support.genTest_3();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
