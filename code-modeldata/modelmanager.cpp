@@ -148,22 +148,31 @@ void ModelManager::rotateY(float angle){
     applyed = false;
     rotationMatrix.rotate(angle, rotateXAxis);
 }
+void ModelManager::rotate(QMatrix4x4 rot){
+    rotationMatrix = rot * rotationMatrix;
+}
+
 void ModelManager::rotateTo(QVector3D vec){
     applyed = false;
     vec.normalize();
-    rotationMatrix.rotate( qRadiansToDegrees(acos(dotProduct(QVector3D(0,0,1),vec))), QVector3D::crossProduct(QVector3D(0,0,1),vec));
+    float dot = dotProduct(QVector3D(0,0,1),vec);
+    QVector3D axis = QVector3D::crossProduct(QVector3D(0,0,1),vec);
+    if(dot>0.95f||dot<-0.95)axis = QVector3D(vec.x(), vec.z(), vec.y());
+    rotationMatrix.rotate( qRadiansToDegrees(acos(dot)), axis);
 }
 void ModelManager::rotateTo_u(QVector3D vec){
     applyed = false;
-    vec.normalize();
-    rotationMatrix.rotate( qRadiansToDegrees(acos(dotProduct(QVector3D(0,1,0),vec))), QVector3D::crossProduct(QVector3D(0,1,0),vec));
+    vec.normalize();float dot = dotProduct(QVector3D(0,1,0),vec);
+    QVector3D axis = QVector3D::crossProduct(QVector3D(0,1,0),vec);
+    if(dot>0.95f||dot<-0.95)axis = QVector3D(vec.x(), vec.z(), vec.y());
+    rotationMatrix.rotate( qRadiansToDegrees(acos(dot)), axis);
 }
-void ModelManager::rotateFrom(QVector3D vec){
+void ModelManager::rotateFrom(QVector3D vec){//unrevise
     applyed = false;
     vec.normalize();
     rotationMatrix.rotate( -qRadiansToDegrees(acos(dotProduct(QVector3D(0,0,1),vec))), QVector3D::crossProduct(QVector3D(0,0,1),vec));
 }
-void ModelManager::rotateFrom_u(QVector3D vec){
+void ModelManager::rotateFrom_u(QVector3D vec){//unrevise
     applyed = false;
     vec.normalize();
     rotationMatrix.rotate( -qRadiansToDegrees(acos(dotProduct(QVector3D(0,1,0),vec))), QVector3D::crossProduct(QVector3D(0,1,0),vec));

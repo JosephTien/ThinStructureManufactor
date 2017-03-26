@@ -482,7 +482,11 @@ void ModelViewer::genSpiral(QVector3D center, QVector3D platenorm, float radii,f
     platenorm.normalize();
     //platenorm*=-1;
     QMatrix4x4 rotationMat;
-    rotationMat.rotate( acosf(QVector3D::dotProduct(platenorm,QVector3D(0,0,1)))/(2*M_PI)*360, QVector3D::crossProduct(platenorm,QVector3D(0,0,1)));
+    float dot = QVector3D::dotProduct(QVector3D(0,0,1),platenorm);
+    QVector3D axis = QVector3D::crossProduct(QVector3D(0,0,1),platenorm);
+    if(dot > 0.95f || dot < -0.95f)axis = QVector3D(1,0,0);
+    rotationMat.rotate( acosf(dot)/(2*M_PI)*360, axis);
+    if(dot > 0.95f)rotationMat.setToIdentity();
 
     std::vector<QVector3D> vertices;
     std::vector<unsigned int> indices;

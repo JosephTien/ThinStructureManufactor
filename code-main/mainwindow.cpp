@@ -11,7 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setFixedSize(800,520);
     /******************/
     flags |= Qt::WindowMinimizeButtonHint;
-    support = MainWindow_support(ui, &var);
+    //support = MainWindow_support(ui, &var);
+    var = MaintainVar(ui);
+    support = MainWindow_support(&var);
 }
 
 MainWindow::~MainWindow()
@@ -93,26 +95,13 @@ void MainWindow::on_btnCut_clicked(){
     for(int i=0;i<tarnum;i++){
         QVector3D c = QVector3D(0,0,0);
         QVector3D n = QVector3D(0,0,1);
-        support.genCut(i,QVector3D(0,0,0),QVector3D(0,0,1));
+        support.applyCut(i,QVector3D(0,0,0),QVector3D(0,0,1));
     }
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
-
-void MainWindow::on_btnTest_1_clicked(){
-    support.genTest_1();
-    renew_cmbbObject();
-    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
-}
-void MainWindow::on_btnTest_2_clicked(){
-    support.genTest_2();
-    renew_cmbbObject();
-    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
-}
-void MainWindow::on_btnTest_3_clicked(){
-    support.genTest_3();
-    on_btnCut_clicked();
-    on_btnOutputAll_clicked();
+void MainWindow::on_btnTest_clicked(){
+    support.genTest_4();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }

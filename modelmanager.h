@@ -48,6 +48,7 @@ public:
     void SetRotation(QVector3D from, QVector3D to);
     void rotateX(float angle);
     void rotateY(float angle);
+    void rotate(QMatrix4x4 rot);
     void rotateTo(QVector3D vec);//target : (0,0,1)
     void rotateTo_u(QVector3D vec);//target : (0,1,0)
     void rotateFrom(QVector3D vec);//target : (0,0,1)

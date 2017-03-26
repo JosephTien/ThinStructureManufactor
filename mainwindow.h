@@ -36,11 +36,7 @@ private slots:
 
     void on_btnCut_clicked();
 
-    void on_btnTest_1_clicked();
-
-    void on_btnTest_2_clicked();
-
-    void on_btnTest_3_clicked();
+    void on_btnTest_clicked();
 
     void on_cmbbObject_currentIndexChanged(int index);
 

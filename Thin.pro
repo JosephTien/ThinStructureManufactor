@@ -18,6 +18,7 @@ SOURCES += \
     code-main/mainwindow_support.cpp \
     code-main/modelviewer.cpp \
     code-main/modelviewer_generator.cpp \
+    code-main/mainwindow_support_genrator.cpp \
     code-modeldata/modelmanager.cpp \
     code-modeldata/modelmanager_support.cpp \
     code-modeldata/modelmanager_utility.cpp \
@@ -26,7 +27,7 @@ SOURCES += \
     code-renderer/standarshader.cpp \
     code-renderer/viewmanager.cpp \
     code-tool/cgalholefiller.cpp \
-    code-tool/cgalmachine.cpp \
+    #code-tool/cgalmachine.cpp \
     code-tool/cgalremesher.cpp \
     code-tool/objLoader.cpp
 
@@ -50,7 +51,7 @@ HEADERS += \
     tiny_obj_loader.h \
     thinstruct.h
 
-PRECOMPILED_HEADER = pch.h #pch_cgal.h
+PRECOMPILED_HEADER = pch.h pch_cgal.h
 QMAKE_CXXFLAGS_DEBUG -= -g
 QMAKE_CXXFLAGS_RELEASE -= -O2
 
@@ -83,7 +84,7 @@ win32 {
     #LIBS += $$PWD/externals/lib/x64/CGAL-vc140-mt-gd-4.8.1.lib
 
     LIBS += $$PWD/externals/lib/x64/mpir.lib # replace gmp for x64?
-    #LIBS += $$PWD/externals/lib/x64/mpir_db.lib # replace gmp for x64?
+    #LIBS += $$PWD/externals/lib/x64/mpir_db.lib
     #LIBS += $$PWD/externals/lib/x64/gmp.lib
     LIBS += $$PWD/externals/lib/x64/mpfr.lib
 

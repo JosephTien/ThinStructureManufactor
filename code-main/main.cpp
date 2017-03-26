@@ -1,7 +1,7 @@
 #include "mainwindow.h"
+#include "pch.h"
 #include <QApplication>
 #include <QSurfaceFormat>
-#include "pch.h"
 
 /**
  * @brief setOpenGLSurfaceFormat
