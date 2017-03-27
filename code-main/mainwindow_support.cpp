@@ -19,6 +19,7 @@ void MainWindow_support::putStdModel(const char * name,QVector3D color, QVector3
     //getModel(var->connectTarNum)->SetScale(scale.x(),scale.y(),scale.z());
     getModel(var->connectTarNum)->scaleDepend_ori(QVector3D(0,0,0),scale.x(),scale.y(),scale.z());
     getModel(var->connectTarNum)->translate_pure(translate);
+    getModel(var->connectTarNum)->centerTranslation = translate;
     getModel(var->connectTarNum)->rotateTo(rotate);
     glMain()->setVis(var->connectTarNum,1);
     getModel(var->connectTarNum)->applyModelMatrix_force();
@@ -53,7 +54,6 @@ void MainWindow_support::stateInit(){
 
 }
 
-#ifdef COMPILECGAL
 void MainWindow_support::fill(int tar){
     std::string mstr = cgaltool.fillHoleAndGetStr(getModel(var->tarObj)->vertices_ori, getModel(var->tarObj)->indices);
     cgaltool.readFromOFFStream(getModel(var->tarObj)->vertices_ori, getModel(var->tarObj)->indices,mstr);
@@ -61,7 +61,6 @@ void MainWindow_support::fill(int tar){
     getModel(tar)->applyModelMatrix_force();
     getModel(tar)->refresh();
 }
-#endif
 
 void MainWindow_support::readST(){
     ThinStruct * ts = &var->ts;
@@ -120,4 +119,16 @@ void MainWindow_support::applyCut(int tar, QVector3D c, QVector3D n){
     applyCSG('-', tar, getTarnum()-1);
     applyCSG('*', getTarnum()-2, getTarnum()-1);
     glMain()->deleteTar(getTarnum()-1);
+}
+
+void MainWindow_support::applyFastCut(int cur, QVector3D c, QVector3D n){
+    glMain()->copyObj(cur);
+    int tar = getTarnum()-1;
+    getModel(cur)->calDetourByPlane(c,n);
+    getModel(cur)->cutByDetour(1);
+    fill(cur);
+    getModel(tar)->calDetourByPlane(c,n);
+    getModel(tar)->cutByDetour(-1);
+    fill(tar);
+
 }

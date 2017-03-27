@@ -223,18 +223,19 @@ void MainWindow_support::genTest_3()//a sample printing
     applyCSG('-', 5, 0);
 
 }
+/*
 void MainWindow_support::genTest_4()
 {
     readST();
     //var->instanceEdges.push_back(std::set<int>());
     //var->instanceNuts.push_back(std::set<int>());
-    /**************************/
+    //----------------------------------------------
     ThinStruct * ts = &var->ts;
     float mul = 50;
     float fix = 0.001f;
     float iR=ts->innerR/mul,oR=ts->outerR/mul,nR=ts->nutR/mul,ioR = (iR+oR)/2;
     int vs = ts->vertices.size()/3;
-    /**************************/
+    //----------------------------------------------
     for(int i=0;i<ts->vertices.size()/3;i++){
         putStdModel("cylinder10X10", QVector3D(0.5f,0.5f,0.5f),
                     QVector3D(oR,oR,oR),
@@ -248,7 +249,6 @@ void MainWindow_support::genTest_4()
                     QVector3D(oR,oR,(v1-v2).length()/100),
                     (v1+v2)/2,
                     v2-v1);
-
         fixRotateMatrix(v2-v1,getTarnum()-1);
     }
     mergeAll(1, getTarnum()-1);
@@ -258,8 +258,8 @@ void MainWindow_support::genTest_4()
     //for(int i=0;i<ts->edges.size()/2;i++)var->instanceEdges[1].insert(i);
     //for(int i=0;i<ts->vertices.size()/3;i++)var->instanceNuts[1].insert(i);
 
-    /**************************/
-    int nutInstance[vs];
+    //----------------------------------------------
+    int * nutInstance = (int*)malloc(vs*sizeof(int));
     for(int i=0;i<vs;i++)nutInstance[i]=1;
     for(int i=0;i<vs;i++){
         int thisvert = i;
@@ -294,7 +294,7 @@ void MainWindow_support::genTest_4()
 
                 //var->instanceEdges.push_back(std::set<int>());
                 //var->instanceNuts.push_back(std::set<int>());
-                bool visited[vs];memset(visited,0,sizeof(visited));
+                bool * visited = (bool*)malloc(vs*sizeof(bool));memset(visited,0,sizeof(visited));
                 for(int j = 0 ; j < vs ; j++)if(nutInstance[j]!=cur)visited[j] = true;
                 visited[thisvert]  = true;
                 //std::set<int> etcl;//edge to-change list
@@ -320,10 +320,121 @@ void MainWindow_support::genTest_4()
             }
         }
     }
-    /**************************/
+    //----------------------------------------------
     genTest_5();
 }
+*/
+void MainWindow_support::genTest_4()
+{
+    readST();
+    //var->instanceEdges.push_back(std::set<int>());
+    //var->instanceNuts.push_back(std::set<int>());
+    //----------------------------------------------
+    ThinStruct * ts = &var->ts;
+    float mul = 50;
+    float fix = 0.001f;
+    float iR=ts->innerR/mul,oR=ts->outerR/mul,nR=ts->nutR/mul,ioR = (iR+oR)/2;
+    int vs = ts->vertices.size()/3;
+    int es = ts->edges.size()/2;
+    float sy;
+    if(ts->setting[1]==1)sy = ioR;
+    else if(ts->setting[1]==2)sy = oR+fix;
+    //----------------------------------------------
+    int * edgeInstance = (int*)malloc(es*sizeof(int));
+    memset(edgeInstance,0,sizeof(int)*es);
+    //for(int i=0;i<es;i++)edgeInstance[i]=0;
+    std::set<int> toDelete;
+    for(int i=0;i<vs;i++){
+        int thisvert = i;
+        putStdModel("cylinder10X10", QVector3D(0.5f,0.5f,0.5f),
+                    QVector3D(oR,oR,oR+fix/2),
+                    QVector3D(ts->getVertice(thisvert)),
+                    QVector3D(0,0,1));
+        int thisvertInstance = getTarnum()-1;
+        for(auto edge : ts->verticesedges[thisvert]){
+            int thatvert = thisvert == ts->edges[edge*2]?ts->edges[edge*2+1]:ts->edges[edge*2];
+            std::cout << thisvert << " : " << thatvert << " ( " << edge << std::endl;
+            QVector3D v1 = ts->getVertice(thisvert);
+            QVector3D v2 = ts->getVertice(thatvert);
+            QVector3D n = (v2-v1).normalized();
+            QVector3D p1 = ts->getVertice(thisvert)+oR*mul*n;
+            QVector3D p2 = ts->getVertice(thisvert)+((v2-v1).length()-oR*mul)*n;
+            putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                        QVector3D(oR,oR,(v1-v2).length()/100),
+                        (v1+v2)/2,
+                        v2-v1);
+            int columnInstance = getTarnum()-1;
+            fixRotateMatrix(v2-v1,columnInstance);
+            if(ts->forceLink[thisvert].count(edge)==0){
+                applyCut(columnInstance,p1,n);deleteLastTar();
+                applyCSG('+',thisvertInstance, columnInstance);
+                deleteTar(columnInstance);
+                //edgeInstance[edge] = 0;
+                std::cout << "is a cut" << std::endl;
 
+                if(ts->setting[1]>0){
+                    putStdModel("cube10X10", QGRAY,QVector3D(ioR-fix,sy,ioR),p1,n);
+                    fixRotateMatrix(n,getTarnum()-1);
+                    applyCSG('+',thisvertInstance,getTarnum()-1);deleteLastTar();
+                }
+
+            }else{
+                if(edgeInstance[edge]==thisvertInstance)deleteTar(columnInstance);
+                else if(edgeInstance[edge]!=0){
+                    deleteTar(columnInstance);
+                    applyCSG('+',edgeInstance[edge], thisvertInstance);
+                    for(int j=0;j<es;j++)if(edgeInstance[j]==thisvertInstance)edgeInstance[j]=edgeInstance[edge];
+                    toDelete.insert(thisvertInstance);
+                    thisvertInstance = edgeInstance[edge];
+                    std::cout << "is a merge" << std::endl;
+                }else if(edgeInstance[edge]==0){
+                    if(ts->forceLink[thatvert].count(edge)==0){
+                        applyCut(columnInstance,p2,n);deleteLastTar();
+                        applyCSG('+',thisvertInstance, columnInstance);
+                        deleteTar(columnInstance);
+                        edgeInstance[edge] = thisvertInstance;
+                        std::cout << "is a new short" << std::endl;
+
+                        if(ts->setting[1]>0){
+                            putStdModel("cube10X10", QGRAY,QVector3D(ioR+fix,sy,ioR),p2,-n);
+                            fixRotateMatrix(-n,getTarnum()-1);
+                            applyCSG('-',thisvertInstance,getTarnum()-1);deleteLastTar();
+                        }
+
+                    }else{
+                        applyCSG('+',thisvertInstance, columnInstance);
+                        deleteTar(columnInstance);
+                        edgeInstance[edge] = thisvertInstance;
+                        std::cout << "is a new long" << std::endl;
+                    }
+                }
+            }
+        }
+    }
+    while(toDelete.size()>0){
+        int maxidx = FLT_MIN;
+        for(auto idx : toDelete){
+            if(idx>maxidx)maxidx = idx;
+        }
+        deleteTar(maxidx);
+        toDelete.erase(maxidx);
+    }
+    for(int i=0;i<es;i++){
+        if(edgeInstance[i]==0){
+            QVector3D v1 = ts->getVertice(ts->edges[i*2]);
+            QVector3D v2 = ts->getVertice(ts->edges[i*2+1]);
+            QVector3D n = (v2-v1).normalized();
+            QVector3D p = (v2+v1)/2;
+            putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                        QVector3D(oR,oR,(v1-v2).length()/100-2*oR),
+                        p, n);
+            fixRotateMatrix(v2-v1,getTarnum()-1);
+            edgeInstance[i] = getTarnum()-1;
+        }
+    }
+    //----------------------------------------------
+    genTest_5();
+}
 void MainWindow_support::genTest_5(){
     int tarnum = getTarnum();
     for(int i=1;i<tarnum;i++){
@@ -411,10 +522,12 @@ void MainWindow_support::genTest_5(){
         applyCSG('-',i,0);
     }
     /**************************/
-    putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
-                QVector3D(oR,oR,oR),
-                QVector3D(0,0,-oR*2*mul),
-                -1*QUP);
-    glMain()->genSpiral(QVector3D(0,0,-oR*mul), -1*QUP, oR*mul/1.41421f, 1, 10, 0, 45, 0.5f, 0.5f);
-    applyCSG('-',getTarnum()-2, getTarnum()-1);deleteLastTar();
+    if(ts->setting[2]>0){
+        putStdModel("cube10X10", QVector3D(0.5f,0.5f,0.5f),
+                    QVector3D(oR,oR,oR),
+                    QVector3D(0,0,-oR*2*mul),
+                    -1*QUP);
+        glMain()->genSpiral(QVector3D(0,0,-oR*mul), -1*QUP, oR*mul/1.41421f, 1, 10, 0, 45, 0.5f, 0.5f);
+        applyCSG('-',getTarnum()-2, getTarnum()-1);deleteLastTar();
+    }
 }

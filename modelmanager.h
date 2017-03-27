@@ -38,6 +38,7 @@ public:
     int detourCPIdx;//center point
     Plane cuttingPlane;
     bool connectReverse = false;
+    QVector3D centerTranslation;
 
     /*basic management function*/
     void SetScale(float x, float y, float z);

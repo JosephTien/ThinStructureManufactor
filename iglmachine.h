@@ -202,7 +202,7 @@ public:
             scriptIfs >> name[0];
             putNew(name[0]);
         }else if(instruction == "+"){
-            std::cout<<"Start Union..."<<std::endl;
+            //std::cout<<"Start Union..."<<std::endl;
             boolean_type = igl::MESH_BOOLEAN_TYPE_UNION;
             scriptIfs >> name[0] >> name[1] >> name[2];
             tar[0] = searchTar(name[0]);
@@ -210,7 +210,7 @@ public:
             tar[2] = searchTar(name[2]);
             igl::copyleft::cgal::mesh_boolean(mesh[tar[1]].V,mesh[tar[1]].F,mesh[tar[2]].V,mesh[tar[2]].F,boolean_type,mesh[tar[0]].V,mesh[tar[0]].F);
         }else if(instruction == "-"){
-            std::cout<<"Start Minus..."<<std::endl;
+            //std::cout<<"Start Minus..."<<std::endl;
             boolean_type = igl::MESH_BOOLEAN_TYPE_MINUS;
             scriptIfs >> name[0] >> name[1] >> name[2];
             tar[0] = searchTar(name[0]);
@@ -218,7 +218,7 @@ public:
             tar[2] = searchTar(name[2]);
             igl::copyleft::cgal::mesh_boolean(mesh[tar[1]].V,mesh[tar[1]].F,mesh[tar[2]].V,mesh[tar[2]].F,boolean_type,mesh[tar[0]].V,mesh[tar[0]].F);
         }else if(instruction == "*"){
-            std::cout<<"Start Intersec..."<<std::endl;
+            //std::cout<<"Start Intersec..."<<std::endl;
             boolean_type = igl::MESH_BOOLEAN_TYPE_INTERSECT;
             scriptIfs >> name[0] >> name[1] >> name[2];
             tar[0] = searchTar(name[0]);
