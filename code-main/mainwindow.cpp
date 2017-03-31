@@ -106,6 +106,12 @@ void MainWindow::on_btnTest_clicked(){
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
 
+void MainWindow::on_btnTest_2_clicked(){
+    support.genTest_6();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
+}
+
 /****************************************/
 
 void MainWindow::on_cmbbObject_currentIndexChanged(int index)

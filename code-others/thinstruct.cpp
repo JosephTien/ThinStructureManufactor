@@ -4,46 +4,61 @@ ThinStruct::ThinStruct()
 {
 
 }
-void ThinStruct::read(std::string file)
+void ThinStruct::read(std::string file1, std::string file2, std::string file3, std::string file4)
 {
     int verticesnum;
     int edgesnum;
-    std::ifstream inputFile(file.c_str());
-    inputFile >> verticesnum;
-    inputFile >> edgesnum;
+    std::ifstream inputFile1(file1.c_str());
+    inputFile1 >> verticesnum;
+    inputFile1 >> edgesnum;
     vertices.clear();
     edges.clear();
-    edgesCutNorm.clear();
+    splitNorm.clear();
     for(int i=0;i<verticesnum*3;i++){
         float val;
-        inputFile >> val;
+        inputFile1 >> val;
         vertices.push_back(val);
     }
     for(int i=0;i<edgesnum*2;i++){
         float val;
-        inputFile >> val;
+        inputFile1 >> val;
         edges.push_back(val);
     }
-    inputFile >> innerR;
-    inputFile >> outerR;
-    inputFile >> nutR;
-
+    inputFile1.close();
+    /***************************************/
+    std::ifstream inputFile3(file3.c_str());
+    inputFile3 >> innerR;
+    inputFile3 >> outerR;
+    inputFile3 >> nutR;
+    inputFile3 >> setting[0];//clean cut?
+    inputFile3 >> setting[1];//slot?
+    inputFile3 >> setting[2];//lock?
+    inputFile3.close();
+    /***************************************/
+    std::ifstream inputFile2(file2.c_str());
     forceLink.resize(vertices.size()/3,std::set<unsigned int>());
     int linkNum;
-    inputFile >> linkNum;
+    inputFile2 >> linkNum;
     for(int i=0;i<linkNum;i++){
         int v,e;
-        inputFile >> v;
-        inputFile >> e;
+        inputFile2 >> v;
+        inputFile2 >> e;
         forceLink[v].insert(e);
     }
 
-    inputFile >> setting[0];//clean cut?
-    inputFile >> setting[1];//slot?
-    inputFile >> setting[2];//lock?
-
-    inputFile.close();
-
+    inputFile2.close();
+    /***************************************/
+    std::ifstream inputFile4(file4.c_str());
+    int es = edges.size()/2;
+    splitNorm.clear();
+    for(int i=0;i<es;i++){
+        float val;
+        inputFile4 >> val;splitNorm.push_back(val);
+        inputFile4 >> val;splitNorm.push_back(val);
+        inputFile4 >> val;splitNorm.push_back(val);
+    }
+    inputFile4.close();
+    /***************************************/
     calNeighbor();
 }
 

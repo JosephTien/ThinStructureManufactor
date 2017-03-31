@@ -64,7 +64,7 @@ void MainWindow_support::fill(int tar){
 
 void MainWindow_support::readST(){
     ThinStruct * ts = &var->ts;
-    ts->read("thinstruct.txt");
+    ts->read("input\\thinstruct.txt", "input\\linkinfo.txt", "input\\setting.txt", "input\\splitinfo.txt");
     float iR=ts->innerR/50,oR=ts->outerR/50,nR=ts->nutR/50;
     for(int i=0;i<ts->vertices.size()/3;i++){
         putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),

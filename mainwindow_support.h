@@ -49,6 +49,7 @@ public:
     void genTest_3();
     void genTest_4();
     void genTest_5();
+    void genTest_6();
 
     QMatrix4x4 getRotateMatrix(QVector3D axis, QVector3D from, QVector3D to){
         from.normalize();
@@ -78,6 +79,16 @@ public:
         QVector3D axis = QVector3D(0,0,1) * rot;
         QVector3D forw = QVector3D(0,1,0) * rot;
         QVector3D tarv = QVector3D(0,0,-1);
+        QMatrix4x4 rot2 = getRotateMatrix(axis, forw, tarv);
+        getModel(tarobj)->translate_pure(-getModel(tarobj)->centerTranslation); updateModel(tarobj);
+        getModel(tarobj)->rotate(rot2);                                         updateModel(tarobj);
+        getModel(tarobj)->translate_pure(getModel(tarobj)->centerTranslation);  updateModel(tarobj);
+
+    }
+    void fixRotateMatrix(QVector3D vec, QVector3D tarv, int tarobj){
+        QMatrix4x4 rot = getRotateMatrix(QVector3D(0,0,1),vec);
+        QVector3D axis = QVector3D(0,0,1) * rot;
+        QVector3D forw = QVector3D(0,1,0) * rot;
         QMatrix4x4 rot2 = getRotateMatrix(axis, forw, tarv);
         getModel(tarobj)->translate_pure(-getModel(tarobj)->centerTranslation); updateModel(tarobj);
         getModel(tarobj)->rotate(rot2);                                         updateModel(tarobj);
