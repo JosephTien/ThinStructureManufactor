@@ -71,8 +71,12 @@ void MainWindow::on_btnLoad_Manu_clicked()
     }
 }
 
-void MainWindow::on_btnReadST_clicked(){
-    support.readST();
+void MainWindow::on_btnCalST_clicked(){
+    support.calST();
+}
+
+void MainWindow::on_btnGenST_clicked(){
+    support.genST();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }

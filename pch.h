@@ -73,5 +73,6 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QObject>
+#include <QDebug>
 
 #endif // PCH_H

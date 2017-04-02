@@ -4,6 +4,31 @@ ThinStruct::ThinStruct()
 {
 
 }
+void ThinStruct::read(std::string file){
+    int verticesnum;
+    int edgesnum;
+    std::ifstream inputFile1(file.c_str());
+    inputFile1 >> verticesnum;
+    inputFile1 >> edgesnum;
+    vertices.clear();
+    edges.clear();
+    splitNorm.clear();
+    for(int i=0;i<verticesnum*3;i++){
+        float val;
+        inputFile1 >> val;
+        vertices.push_back(val);
+    }
+    for(int i=0;i<edgesnum*2;i++){
+        float val;
+        inputFile1 >> val;
+        edges.push_back(val);
+    }
+    inputFile1.close();
+    assemblyInfo = AssemblyInfo(vertices, edges);
+    assemblyInfo.calAsmSets();
+    assemblyInfo.calCombination();
+}
+
 void ThinStruct::read(std::string file1, std::string file2, std::string file3, std::string file4)
 {
     int verticesnum;
@@ -33,6 +58,7 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
     inputFile3 >> setting[0];//clean cut?
     inputFile3 >> setting[1];//slot?
     inputFile3 >> setting[2];//lock?
+    inputFile3 >> setting[3];//column | cylinder
     inputFile3.close();
     /***************************************/
     std::ifstream inputFile2(file2.c_str());
@@ -52,10 +78,14 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
     int es = edges.size()/2;
     splitNorm.clear();
     for(int i=0;i<es;i++){
-        float val;
-        inputFile4 >> val;splitNorm.push_back(val);
-        inputFile4 >> val;splitNorm.push_back(val);
-        inputFile4 >> val;splitNorm.push_back(val);
+        QVector3D vec = getVertice(edges[i*2+1])-getVertice(edges[i*2]);
+        float val1,val2,val3;
+        inputFile4 >> val1;
+        inputFile4 >> val2;
+        inputFile4 >> val3;
+        QVector3D norm = QVector3D::crossProduct(vec,QVector3D::crossProduct(QVector3D(val1,val2,val3), vec));
+        splitNorm.push_back(norm.x());splitNorm.push_back(norm.y());splitNorm.push_back(norm.z());
+
     }
     inputFile4.close();
     /***************************************/

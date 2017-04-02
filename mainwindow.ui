@@ -73,24 +73,24 @@
      <string>Output</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnReadST">
+   <widget class="QPushButton" name="btnGenST">
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>160</y>
+      <y>190</y>
       <width>120</width>
       <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string>Read ST</string>
+     <string>Gen ST</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnGenTube">
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>190</y>
+      <y>220</y>
       <width>120</width>
       <height>30</height>
      </rect>
@@ -103,7 +103,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>220</y>
+      <y>250</y>
       <width>120</width>
       <height>30</height>
      </rect>
@@ -116,7 +116,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>250</y>
+      <y>280</y>
       <width>120</width>
       <height>30</height>
      </rect>
@@ -129,7 +129,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>280</y>
+      <y>310</y>
       <width>120</width>
       <height>30</height>
      </rect>
@@ -155,13 +155,26 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>310</y>
+      <y>340</y>
       <width>120</width>
       <height>30</height>
      </rect>
     </property>
     <property name="text">
      <string>3D Test</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCalST">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>160</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cal ST</string>
     </property>
    </widget>
   </widget>
@@ -171,7 +184,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
