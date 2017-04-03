@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_SUPPORT_H
 #define MAINWINDOW_SUPPORT_H
-#define QUP QVector3D(0,0,1)
-#define QFORW QVector3D(0,1,0)
-#define QZERO QVector3D(0,0,0)
-#define QGRAY QVector3D(0.5f,0.5f,0.5f)
+
+
+
+
 #include <cgaltool.h>
 //#include <ui_mainwindow.h>
 #include <iglmachine.h>
