@@ -29,7 +29,8 @@ SOURCES += \
     code-tool/cgalholefiller.cpp \
     #code-tool/cgalmachine.cpp \
     code-tool/cgalremesher.cpp \
-    code-tool/objLoader.cpp
+    code-tool/objLoader.cpp \
+    code-others/assemblyinfo.cpp
 
 
 HEADERS += \
@@ -49,7 +50,8 @@ HEADERS += \
     geometry.h \
     iglmachine.h \
     tiny_obj_loader.h \
-    thinstruct.h
+    thinstruct.h \
+    assemblyinfo.h
 
 PRECOMPILED_HEADER = pch.h pch_cgal.h
 QMAKE_CXXFLAGS_DEBUG -= -g

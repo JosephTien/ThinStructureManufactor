@@ -71,8 +71,12 @@ void MainWindow::on_btnLoad_Manu_clicked()
     }
 }
 
-void MainWindow::on_btnReadST_clicked(){
-    support.readST();
+void MainWindow::on_btnCalST_clicked(){
+    support.calST();
+}
+
+void MainWindow::on_btnGenST_clicked(){
+    support.genST();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
@@ -102,6 +106,12 @@ void MainWindow::on_btnCut_clicked(){
 }
 void MainWindow::on_btnTest_clicked(){
     support.genTest_4();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
+}
+
+void MainWindow::on_btnTest_2_clicked(){
+    support.genTest_6();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }

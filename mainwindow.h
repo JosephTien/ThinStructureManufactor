@@ -28,7 +28,9 @@ private slots:
 
     void on_btnLoad_Manu_clicked();
 
-    void on_btnReadST_clicked();
+    void on_btnCalST_clicked();
+
+    void on_btnGenST_clicked();
 
     void on_btnGenTube_clicked();
 
@@ -38,6 +40,8 @@ private slots:
 
     void on_btnTest_clicked();
 
+    void on_btnTest_2_clicked();
+
     void on_cmbbObject_currentIndexChanged(int index);
 
     void mousePressEvent(QMouseEvent *event);
@@ -45,6 +49,7 @@ private slots:
     void keyPressEvent(QKeyEvent *);
 
     void keyReleaseEvent(QKeyEvent *event);
+
 
 private:
 

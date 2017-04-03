@@ -73,5 +73,11 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QObject>
+#include <QDebug>
+
+#define QUP QVector3D(0,0,1)
+#define QFORW QVector3D(0,1,0)
+#define QZERO QVector3D(0,0,0)
+#define QGRAY QVector3D(0.5f,0.5f,0.5f)
 
 #endif // PCH_H

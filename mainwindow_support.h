@@ -1,9 +1,5 @@
 #ifndef MAINWINDOW_SUPPORT_H
 #define MAINWINDOW_SUPPORT_H
-#define QUP QVector3D(0,0,1)
-#define QFORW QVector3D(0,1,0)
-#define QZERO QVector3D(0,0,0)
-#define QGRAY QVector3D(0.5f,0.5f,0.5f)
 #include <cgaltool.h>
 //#include <ui_mainwindow.h>
 #include <iglmachine.h>
@@ -37,7 +33,8 @@ public:
     void putStdModel(const char * name, QVector3D color, QVector3D scale, QVector3D translate, QVector3D rotate);
     void applyCSG(char c,int er, int ee);
     void stateInit();
-    void readST();
+    void calST();
+    void genST();
     void mergeAll();
     void mergeAll(int from, int to);
     void genTube();
@@ -49,6 +46,9 @@ public:
     void genTest_3();
     void genTest_4();
     void genTest_5();
+    void genTest_6();
+    void genTest_6_2();
+    void genTest_7();
 
     QMatrix4x4 getRotateMatrix(QVector3D axis, QVector3D from, QVector3D to){
         from.normalize();
@@ -75,9 +75,20 @@ public:
     }
     void fixRotateMatrix(QVector3D vec, int tarobj){
         QMatrix4x4 rot = getRotateMatrix(QVector3D(0,0,1),vec);
-        QVector3D axis = QVector3D(0,0,1) * rot;
-        QVector3D forw = QVector3D(0,1,0) * rot;
+        QVector3D axis = (rot * QVector4D(0,0,1,1)).toVector3DAffine();
+        QVector3D forw = (rot * QVector4D(0,1,0,1)).toVector3DAffine();
         QVector3D tarv = QVector3D(0,0,-1);
+        QMatrix4x4 rot2 = getRotateMatrix(axis, forw, tarv);
+        getModel(tarobj)->translate_pure(-getModel(tarobj)->centerTranslation); updateModel(tarobj);
+        getModel(tarobj)->rotate(rot2);                                         updateModel(tarobj);
+        getModel(tarobj)->translate_pure(getModel(tarobj)->centerTranslation);  updateModel(tarobj);
+
+    }
+    void fixRotateMatrix(QVector3D vec, QVector3D tarv, int tarobj){
+        tarv = QVector3D::crossProduct(vec, QVector3D::crossProduct(tarv, vec).normalized()).normalized();
+        QMatrix4x4 rot = getRotateMatrix(QVector3D(0,0,1),vec);
+        QVector3D axis = (rot * QVector4D(0,0,1,1)).toVector3DAffine();
+        QVector3D forw = (rot * QVector4D(0,1,0,1)).toVector3DAffine();
         QMatrix4x4 rot2 = getRotateMatrix(axis, forw, tarv);
         getModel(tarobj)->translate_pure(-getModel(tarobj)->centerTranslation); updateModel(tarobj);
         getModel(tarobj)->rotate(rot2);                                         updateModel(tarobj);

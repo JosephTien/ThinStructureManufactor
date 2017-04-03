@@ -62,9 +62,22 @@ void MainWindow_support::fill(int tar){
     getModel(tar)->refresh();
 }
 
-void MainWindow_support::readST(){
+void MainWindow_support::calST(){
     ThinStruct * ts = &var->ts;
-    ts->read("thinstruct.txt");
+#ifdef __APPLE__
+    ts->read("input/thinstruct.txt");
+#else
+    ts->read("input\\thinstruct.txt");
+#endif
+}
+
+void MainWindow_support::genST(){
+    ThinStruct * ts = &var->ts;
+#ifdef __APPLE__
+    ts->read("input/thinstruct.txt", "input/linkinfo.txt", "input/setting.txt", "input/splitinfo.txt");
+#else
+    ts->read("input\\thinstruct.txt", "input\\linkinfo.txt", "input\\setting.txt", "input\\splitinfo.txt");
+#endif
     float iR=ts->innerR/50,oR=ts->outerR/50,nR=ts->nutR/50;
     for(int i=0;i<ts->vertices.size()/3;i++){
         putStdModel("sphere10X10", QVector3D(0.5f,0.5f,0.5f),

@@ -12,8 +12,7 @@ public:
     int tarObj = 0;
     int connectTarNum;
     ThinStruct ts;
-    std::vector<std::set<int>>instanceEdges;
-    std::vector<std::set<int>>instanceNuts;
+    int * edgeInstance;
 };
 
 #endif // MAINTAINVAR_H
