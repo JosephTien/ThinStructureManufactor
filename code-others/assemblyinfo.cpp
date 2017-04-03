@@ -1,6 +1,6 @@
 #include "assemblyinfo.h"
 
-AsmTerm AsmTerm::operator* (const AsmTerm& asmTerm) const
+AsmTerm AsmTerm::operator * (const AsmTerm& asmTerm) const
 {
     AsmTerm rtn;
     for(int i=0;i<size();i++){
@@ -43,7 +43,7 @@ AsmTerm AsmTerm::operator* (const AsmTerm& asmTerm) const
     return rtn;
 }
 
-AsmSet AsmSet::operator+ (const AsmSet& asmSet) const
+AsmSet AsmSet::operator + (const AsmSet& asmSet) const
 {
 
 }
