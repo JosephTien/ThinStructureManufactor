@@ -17,6 +17,7 @@
 #endif
 
 #include <string>
+#include <stack>
 #include <vector>
 #include <set>
 #include <queue>

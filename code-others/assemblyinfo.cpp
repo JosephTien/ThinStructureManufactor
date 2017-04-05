@@ -1,5 +1,6 @@
 #include "assemblyinfo.h"
 void AsmTerm::creatAvaliableVecs(){
+    int div = 36;
     avaliableVecs.clear();
     int thdiv = div*4;
     for(int theta=0;theta<thdiv;theta++){
@@ -16,15 +17,31 @@ void AsmTerm::creatAvaliableVecs(){
             avaliableVecs.push_back(QVector3D(phcos*cos(2*M_PI*theta/thdiv), phcos*sin(2*M_PI*theta/thdiv), -phsin));
         }
     }
-    cleanAvaliableVecs();
+}
+void AsmTerm::cleanAvaliableVecsByLast(){
+    if(restrictVecs.size()==0)return;
+    std::vector<QVector3D> _avaliableVecs;
+    for(int i=0;i<(int)avaliableVecs.size();i++){
+        QVector3D avaliableVec = avaliableVecs[i];
+        bool nvalid=false;
+        int j = (int)restrictVecs.size()-1;
+        QVector3D restrictVec = restrictVecs[j];
+        if(dot(avaliableVec-restrictVec,restrictVec)>0){
+            nvalid = true;
+        }
+        if(!nvalid){
+            _avaliableVecs.push_back(avaliableVec);
+        }
+    }
+    avaliableVecs = _avaliableVecs;
 }
 
 void AsmTerm::cleanAvaliableVecs(){
     std::vector<QVector3D> _avaliableVecs;
-    for(int i=0;i<avaliableVecs.size();i++){
+    for(int i=0;i<(int)avaliableVecs.size();i++){
         QVector3D avaliableVec = avaliableVecs[i];
         bool nvalid=false;
-        for(int j=0;j<restrictVecs.size();j++){
+        for(int j=0;j<(int)restrictVecs.size();j++){
             QVector3D restrictVec = restrictVecs[j];
             if(dot(avaliableVec-restrictVec,restrictVec)>0){
                 nvalid = true;
@@ -38,9 +55,10 @@ void AsmTerm::cleanAvaliableVecs(){
     avaliableVecs = _avaliableVecs;
 }
 //---------------------------------------------------------
+
+//---------------------------------------------------------
 AssemblyInfo::AssemblyInfo()
 {
-
 }
 
 AssemblyInfo::AssemblyInfo(std::vector<float> vertices, std::vector<int> edges){
@@ -63,7 +81,19 @@ AssemblyInfo::AssemblyInfo(std::vector<float> vertices, std::vector<int> edges){
     }
 }
 
-std::set<neighborEdgeInfo> AssemblyInfo::getAsmSetNeighborEdges(int idx){
+void AssemblyInfo::addCompToSet(AsmSet &asmSet, int edge){
+    int v1idx = edges[edge*2];
+    int v2idx = edges[edge*2+1];
+    if(v1idx>v2idx){
+        int temp =  v1idx;
+        v1idx = v2idx;
+        v2idx = temp;
+    }
+    asmSet.add(edge,getVertice(v1idx),getVertice(v2idx));
+}
+
+void AssemblyInfo::getAsmSetNeighborEdges(AsmSet &asmSet)
+{
     std::set<int> neighborEdges;
     std::vector<int> froms;
     std::vector<int> froms2;
@@ -71,7 +101,7 @@ std::set<neighborEdgeInfo> AssemblyInfo::getAsmSetNeighborEdges(int idx){
     froms.resize(this->getEdgeNum(),-1);
     froms2.resize(this->getEdgeNum(),-1);
     fromedges.resize(this->getEdgeNum(),std::set<int>());
-    for(auto asmComp : asmSets[idx].asmComps){
+    for(auto asmComp : asmSet.asmComps){
         int edge = asmComp.edge;
         int v1idx = edges[edge*2];
         int v2idx = edges[edge*2+1];
@@ -92,30 +122,28 @@ std::set<neighborEdgeInfo> AssemblyInfo::getAsmSetNeighborEdges(int idx){
             fromedges[thatedge].insert(edge);
         }
     }
-    for(auto asmComp : asmSets[idx].asmComps){
+    for(auto asmComp : asmSet.asmComps){
         int edge = asmComp.edge;
         neighborEdges.erase(edge);
     }
-    std::set<neighborEdgeInfo> infos;
-    infos.clear();
+    asmSet.infos.clear();
     for(auto edge:neighborEdges){
-        infos.insert(neighborEdgeInfo(edge ,froms[edge], fromedges[edge]));
+        asmSet.infos.insert(neighborEdgeInfo(edge ,froms[edge], fromedges[edge]));
         if(froms2[edge]!=-1){
-            infos.insert(neighborEdgeInfo(edge ,froms2[edge], fromedges[edge]));
+            asmSet.infos.insert(neighborEdgeInfo(edge ,froms2[edge], fromedges[edge]));
         }
     }
-    return infos;
 }
 
 void AssemblyInfo::calAsmSets(){
     for(int i=0;i<getEdgeNum();i++){
         QVector3D v1,v2;
         getEdge(i,v1,v2);
-        asmSets.push_back(AsmSet());
-        asmSets[i].add(i,v1,v2);
+        asmSets_push_back(AsmSet());
+        addCompToSet(asmSets[i],i);
         asmSets[i].asmTerm.addRestrict((v2-v1).normalized(), AsmComp::flexAngle);
         asmSets[i].asmTerm.addRestrict((v1-v2).normalized(), AsmComp::flexAngle);
-        asmSets[i].infos = getAsmSetNeighborEdges(i);
+        getAsmSetNeighborEdges(asmSets[i]);
         /*
         for(auto e : asmSets[i].infos){
             qDebug() << e.neighborEdge;
@@ -126,11 +154,96 @@ void AssemblyInfo::calAsmSets(){
         }
         qDebug() << "";
         */
+    }
+    asmSetsPrefix.clear();
+    asmSetsPrefix.push_back(0);
+    asmSetsPrefix.push_back(asmSets_size);
+    for(int curPrefix=0;curPrefix<getVerticeNum();curPrefix++){
+        for(int i=asmSetsPrefix[curPrefix];i<asmSetsPrefix[curPrefix+1];i++){
+            AsmComp maxComp = *asmSets[i].asmComps.rbegin();
+            for(auto info:asmSets[i].infos){
+                int edge = info.neighborEdge;
+                if(edge>maxComp.edge){
+                    QVector3D v1,v2;
+                    getEdge(edge,v1,v2);
+                    AsmSet newAsmSet = asmSets[i];
+                    addCompToSet(newAsmSet,edge);
+                    getAsmSetNeighborEdges(newAsmSet);//can be faster(now is exhaustive)
+                    newAsmSet.asmTerm.addRestrict((v2-v1).normalized(), AsmComp::flexAngle);
+                    newAsmSet.asmTerm.addRestrict((v1-v2).normalized(), AsmComp::flexAngle);
+                    if(newAsmSet.asmTerm.avaliableVecs.size()>0)asmSets_push_back(newAsmSet);
+                    //------------------------------
+                    for(auto e : newAsmSet.asmComps)
+                        std::cout << e.edge << " ";
+                    std::cout << " (avaliableSize : " << newAsmSet.asmTerm.avaliableVecs.size();
+                    std::cout << std::endl;
+                    //------------------------------
+                }
+            }
+        }
+        asmSetsPrefix.push_back(asmSets_size);
+    }
+    std::cout << std::endl;
+}
 
+void AssemblyInfo::calCombination(){
+    combination_Val = FLT_MIN;
+    std::stack<int> stack;
+    bool * edgeVisited;
+    edgeVisited = (bool*)malloc(getVerticeNum()*sizeof(bool));
+    memset(edgeVisited,0,sizeof(edgeVisited));
+    int edgeVisitedNum = 0;
+    int cur=asmSets_size-1;
+    for(auto e:asmSets[cur].asmComps){
+        edgeVisited[e.edge]=true;
+        edgeVisitedNum++;
+    }
+    stack.push(cur--);
+    while(!stack.empty()||cur>=0){
+        while(cur>=0){
+            bool fit = true;
+            for(auto e:asmSets[cur].asmComps){
+                if(edgeVisited[e.edge]){
+                    fit = false;
+                }
+            }
+            if(fit){
+                for(auto e:asmSets[cur].asmComps){
+                    edgeVisited[e.edge]=true;
+                    edgeVisitedNum++;
+                }
+                stack.push(cur);
+            }
+            cur--;
+        }
+        if(edgeVisitedNum==getEdgeNum()){
+            combination.clear();
+            std::stack<int> stack_cpy = stack;
+            while(!stack_cpy.empty()){
+                int edge = stack_cpy.top();
+                combination.push_back(edge);
+                stack_cpy.pop();
+                std::cout << edge << " ";
+            }
+            float thisVal = energyFunction();
+            if(combination_Val<thisVal){
+                combination_Val=thisVal;
+                combination_Best = combination;
+            }
+            std::cout << std::endl;
+        }
+        cur = stack.top();
+        stack.pop();
+        for(auto e:asmSets[cur].asmComps){
+            edgeVisited[e.edge]=false;
+            edgeVisitedNum--;
+        }
+        cur--;
     }
 
 }
 
-void AssemblyInfo::calCombination(){
-
+float AssemblyInfo::energyFunction(){
+    return 1.0f/asmSets_size;
 }
+//clean the reallocate

@@ -36,8 +36,10 @@ public:
 
 class AsmTerm{
 public:
-    constexpr static int div = 36;
-    AsmTerm(){}
+    //constexpr static int div = 36;
+    AsmTerm(){
+        creatAvaliableVecs();
+    }
     std::vector<QVector3D> restrictVecs;
     //std::vector<float> restrictAngles;
     std::vector<QVector3D> avaliableVecs;
@@ -46,10 +48,12 @@ public:
 
     void cleanAvaliableVecs();
 
+    void cleanAvaliableVecsByLast();
+
     void addRestrict(QVector3D restrictVec, float restrictAngle){
         restrictVecs.push_back(restrictVec.normalized()*sin(restrictAngle/M_PI*180));
         //restrictAngles.push_back(restrictAngle);
-        creatAvaliableVecs();
+        cleanAvaliableVecsByLast();
     }
 
     float dot(QVector3D a, QVector3D b)const{
@@ -66,6 +70,7 @@ public:
 
     AsmTerm& operator = (const AsmTerm& asmTerm){
         this->restrictVecs = asmTerm.restrictVecs;
+        this->avaliableVecs = asmTerm.avaliableVecs;
         //this->restrictAngles = asmTerm.restrictAngles;
         return *this;
     }
@@ -116,6 +121,13 @@ public:
             return this->parentVertice > info.parentVertice;
         return this->neighborEdge > info.neighborEdge;
     }
+    neighborEdgeInfo& operator = (const neighborEdgeInfo& info)
+    {
+        this->neighborEdge = info.neighborEdge;
+        this->parentEdges = info.parentEdges;
+        this->parentVertice = info.parentVertice;
+        return *this;
+    }
 };
 class AsmSet{
 public:
@@ -125,11 +137,9 @@ public:
     AsmTerm asmTerm;
     std::set<neighborEdgeInfo> infos;
     /*
-    std::vector<int> neighborEdges;
-    std::vector<int> parentVertices;
-    std::vector<std::set<int>> parentEdges;
+    bool addInfo(neighborEdgeInfo info);
+    bool delInfo(neighborEdgeInfo info);
     */
-
     bool add(AsmComp asmComp){
         if(asmComps.count(asmComp)>0){
             asmComps.erase(asmComp);
@@ -204,6 +214,7 @@ public:
     {
         this->asmComps = asmSet.asmComps;
         this->asmTerm = asmSet.asmTerm;
+        this->infos = asmSet.infos;
         return *this;
     }
 
@@ -228,18 +239,25 @@ public:
     std::vector<int> edges;
     std::vector<std::set<int>> neighbors;
     std::vector<std::vector<int>> edgesMap;
-    std::vector<AsmSet> asmSets;
+    AsmSet asmSets[1000];
+    int asmSets_size = 0;
     std::vector<int> asmSetsPrefix;
     std::vector<int> combination;
+    std::vector<int> combination_Best;
+    int combination_Val;
+    std::vector<int> verticeBelong;
 
     inline int getVerticeNum(){return vertices.size()/3;}
     inline int getEdgeNum(){return edges.size()/2;}
     inline QVector3D getVertice(int idx){return QVector3D(vertices[idx*3],vertices[idx*3+1],vertices[idx*3+2]);}
-    inline QVector3D getEdgeIdx(int idx, int &v1idx, int &v2idx){v1idx = edges[idx*2];v2idx = edges[idx*2+1];}
-    inline QVector3D getEdge(int idx, QVector3D &v1, QVector3D &v2){v1 = getVertice(edges[idx*2]);v2 = getVertice(edges[idx*2+1]);}
-    std::set<neighborEdgeInfo> getAsmSetNeighborEdges(int idx);
+    inline void getEdgeIdx(int idx, int &v1idx, int &v2idx){v1idx = edges[idx*2];v2idx = edges[idx*2+1];}
+    inline void getEdge(int idx, QVector3D &v1, QVector3D &v2){v1 = getVertice(edges[idx*2]);v2 = getVertice(edges[idx*2+1]);}
+    void asmSets_push_back(AsmSet asmSet){asmSets[asmSets_size++] = asmSet;}
+    void getAsmSetNeighborEdges(AsmSet &asmSet);
+    void addCompToSet(AsmSet &asmSet, int edge);
     void calAsmSets();
     void calCombination();
+    float energyFunction();
 
 };
 
