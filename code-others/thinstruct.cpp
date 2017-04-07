@@ -24,6 +24,7 @@ void ThinStruct::read(std::string file){
         edges.push_back(val);
     }
     inputFile1.close();
+<<<<<<< HEAD
     assemblyInfo = AssemblyInfo(vertices, edges);
     assemblyInfo.calAsmSets();
     assemblyInfo.calCombination();
@@ -50,6 +51,8 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
         edges.push_back(val);
     }
     inputFile1.close();
+=======
+>>>>>>> 7b0471f4b6c5c1b1688f84721c29ac037d0885b1
     /***************************************/
     std::ifstream inputFile3(file3.c_str());
     inputFile3 >> innerR;
@@ -58,7 +61,10 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
     inputFile3 >> setting[0];//clean cut?
     inputFile3 >> setting[1];//slot?
     inputFile3 >> setting[2];//lock?
+<<<<<<< HEAD
     inputFile3 >> setting[3];//column | cylinder
+=======
+>>>>>>> 7b0471f4b6c5c1b1688f84721c29ac037d0885b1
     inputFile3.close();
     /***************************************/
     std::ifstream inputFile2(file2.c_str());
@@ -78,6 +84,7 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
     int es = edges.size()/2;
     splitNorm.clear();
     for(int i=0;i<es;i++){
+<<<<<<< HEAD
         QVector3D vec = getVertice(edges[i*2+1])-getVertice(edges[i*2]);
         float val1,val2,val3;
         inputFile4 >> val1;
@@ -86,6 +93,12 @@ void ThinStruct::read(std::string file1, std::string file2, std::string file3, s
         QVector3D norm = QVector3D::crossProduct(vec,QVector3D::crossProduct(QVector3D(val1,val2,val3), vec));
         splitNorm.push_back(norm.x());splitNorm.push_back(norm.y());splitNorm.push_back(norm.z());
 
+=======
+        float val;
+        inputFile4 >> val;splitNorm.push_back(val);
+        inputFile4 >> val;splitNorm.push_back(val);
+        inputFile4 >> val;splitNorm.push_back(val);
+>>>>>>> 7b0471f4b6c5c1b1688f84721c29ac037d0885b1
     }
     inputFile4.close();
     /***************************************/

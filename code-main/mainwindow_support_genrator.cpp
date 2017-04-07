@@ -594,7 +594,6 @@ void MainWindow_support::genTest_6()
                     fixRotateMatrix(n,down,getTarnum()-1);
                     applyCSG('+',thisvertInstance,getTarnum()-1);deleteLastTar();
                 }
-
             }else{
                 if(edgeInstance[edge]==thisvertInstance)deleteTar(columnInstance);
                 else if(edgeInstance[edge]!=0){
@@ -654,6 +653,7 @@ void MainWindow_support::genTest_6()
         }
     }
     //----------------------------------------------
+
     genTest_7();
     /*
     var->edgeInstance = (int*)malloc(2*es*sizeof(int));memset(var->edgeInstance,0,sizeof(int)*es*2);
