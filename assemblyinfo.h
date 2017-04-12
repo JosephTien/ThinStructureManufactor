@@ -50,6 +50,8 @@ public:
 
     void cleanAvaliableVecsByLast();
 
+    void delNValidVecs(QVector3D fromEdge, QVector3D toEdge);
+
     void addRestrict(QVector3D restrictVec, float restrictAngle){
         restrictVecs.push_back(restrictVec.normalized()*sin(restrictAngle/M_PI*180));
         //restrictAngles.push_back(restrictAngle);
@@ -244,7 +246,7 @@ public:
     std::vector<int> asmSetsPrefix;
     std::vector<int> combination;
     std::vector<int> combination_Best;
-    int combination_Val;
+    float combination_Val;
     std::vector<int> verticeBelong;
 
     inline int getVerticeNum(){return vertices.size()/3;}

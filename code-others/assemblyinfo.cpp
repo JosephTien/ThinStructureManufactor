@@ -54,6 +54,16 @@ void AsmTerm::cleanAvaliableVecs(){
     }
     avaliableVecs = _avaliableVecs;
 }
+
+void AsmTerm::delNValidVecs(QVector3D fromEdge, QVector3D toEdge){
+    std::vector<QVector3D> _avaliableVecs;
+    for(auto vec:avaliableVecs){
+        QVector3D fromPlane = cross(fromEdge,cross(vec,fromEdge));
+        QVector3D toPlane = cross(toEdge,cross(vec,toEdge));;
+        if(dot(cross(vec,fromEdge),cross(vec,toEdge))>0)_avaliableVecs.push_back(vec);
+    }
+    avaliableVecs=_avaliableVecs;
+}
 //---------------------------------------------------------
 
 //---------------------------------------------------------
@@ -98,28 +108,42 @@ void AssemblyInfo::getAsmSetNeighborEdges(AsmSet &asmSet)
     std::vector<int> froms;
     std::vector<int> froms2;
     std::vector<std::set<int>> fromedges;
+    std::vector<std::set<int>> fromedges2;
     froms.resize(this->getEdgeNum(),-1);
     froms2.resize(this->getEdgeNum(),-1);
     fromedges.resize(this->getEdgeNum(),std::set<int>());
+    fromedges2.resize(this->getEdgeNum(),std::set<int>());
     for(auto asmComp : asmSet.asmComps){
         int edge = asmComp.edge;
         int v1idx = edges[edge*2];
         int v2idx = edges[edge*2+1];
         for(auto vert:neighbors[v1idx]){
+            if(vert==v2idx)continue;
             int vidx = v1idx;
             int thatedge = edgesMap[vidx][vert];
             neighborEdges.insert(thatedge);
-            if(froms[thatedge]!=-1&&froms[thatedge]!=vidx)froms2[thatedge] = vidx;
-            else froms[thatedge] = vidx;
-            fromedges[thatedge].insert(edge);
+            if(froms[thatedge]!=-1&&froms[thatedge]!=vidx){
+                froms2[thatedge] = vidx;
+                fromedges2[thatedge].insert(edge);
+            }
+            else{
+                froms[thatedge] = vidx;
+                fromedges[thatedge].insert(edge);
+            }
         }
         for(auto vert:neighbors[v2idx]){
+            if(vert==v2idx)continue;
             int vidx = v2idx;
             int thatedge = edgesMap[vidx][vert];
             neighborEdges.insert(thatedge);
-            if(froms[thatedge]!=-1&&froms[thatedge]!=vidx)froms2[thatedge] = vidx;
-            else froms[thatedge] = vidx;
-            fromedges[thatedge].insert(edge);
+            if(froms[thatedge]!=-1&&froms[thatedge]!=vidx){
+                froms2[thatedge] = vidx;
+                fromedges2[thatedge].insert(edge);
+            }
+            else{
+                froms[thatedge] = vidx;
+                fromedges[thatedge].insert(edge);
+            }
         }
     }
     for(auto asmComp : asmSet.asmComps){
@@ -130,7 +154,7 @@ void AssemblyInfo::getAsmSetNeighborEdges(AsmSet &asmSet)
     for(auto edge:neighborEdges){
         asmSet.infos.insert(neighborEdgeInfo(edge ,froms[edge], fromedges[edge]));
         if(froms2[edge]!=-1){
-            asmSet.infos.insert(neighborEdgeInfo(edge ,froms2[edge], fromedges[edge]));
+            asmSet.infos.insert(neighborEdgeInfo(edge ,froms2[edge], fromedges2[edge]));
         }
     }
 }
@@ -171,6 +195,18 @@ void AssemblyInfo::calAsmSets(){
                     getAsmSetNeighborEdges(newAsmSet);//can be faster(now is exhaustive)
                     newAsmSet.asmTerm.addRestrict((v2-v1).normalized(), AsmComp::flexAngle);
                     newAsmSet.asmTerm.addRestrict((v1-v2).normalized(), AsmComp::flexAngle);
+                    for(auto paredge:info.parentEdges){
+                        int parvert = info.parentVertice;
+                        QVector3D parv1,parv2;
+                        getEdge(paredge,parv1,parv2);
+                        QVector3D parvec = edges[paredge*2]==parvert?parv1-parv2:parv2-parv1;
+                        QVector3D neivec = edges[edge*2]==parvert?v2-v1:v1-v2;
+                        newAsmSet.asmTerm.delNValidVecs(parvec,neivec);
+                        //qDebug()<<parvec;
+                        //qDebug()<<neivec;
+                        //std::cout<< "vert : " <<parvert<<std::endl;
+                        //std::cout<< "edge : " <<paredge<<std::endl;
+                    }
                     if(newAsmSet.asmTerm.avaliableVecs.size()>0)asmSets_push_back(newAsmSet);
                     //------------------------------
                     for(auto e : newAsmSet.asmComps)
