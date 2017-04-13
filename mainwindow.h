@@ -30,6 +30,8 @@ private slots:
 
     void on_btnCalST_clicked();
 
+    void on_btnCalSTLink_clicked();
+
     void on_btnGenST_clicked();
 
     void on_btnGenTube_clicked();

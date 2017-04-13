@@ -71,6 +71,15 @@ void MainWindow_support::calST(){
 #endif
 }
 
+void MainWindow_support::calSTLink(){
+    ThinStruct * ts = &var->ts;
+#ifdef __APPLE__
+    ts->read_("input/thinstruct.txt");
+#else
+    ts->read_("input\\thinstruct.txt");
+#endif
+}
+
 void MainWindow_support::genST(){
     ThinStruct * ts = &var->ts;
 #ifdef __APPLE__

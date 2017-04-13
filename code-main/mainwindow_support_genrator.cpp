@@ -938,5 +938,11 @@ void MainWindow_support::genTest_7(){
         applyCSG('-',i        ,getTarnum()-1);
         applyCSG('*',i+instNum,getTarnum()-1);
     }
+    //----------------------------------------------
+    deleteLastTar();
+
+    //for(int i=1;i<getTarnum();i++){
+    //    applyCSG('-',i,0);
+    //}
 
 }

@@ -34,6 +34,7 @@ public:
     void applyCSG(char c,int er, int ee);
     void stateInit();
     void calST();
+    void calSTLink();
     void genST();
     void mergeAll();
     void mergeAll(int from, int to);

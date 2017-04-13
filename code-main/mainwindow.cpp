@@ -75,6 +75,10 @@ void MainWindow::on_btnCalST_clicked(){
     support.calST();
 }
 
+void MainWindow::on_btnCalSTLink_clicked(){
+    support.calSTLink();
+}
+
 void MainWindow::on_btnGenST_clicked(){
     support.genST();
     renew_cmbbObject();
