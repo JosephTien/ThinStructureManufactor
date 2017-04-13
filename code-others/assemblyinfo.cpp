@@ -158,6 +158,20 @@ void AssemblyInfo::getAsmSetNeighborEdges(AsmSet &asmSet)
         }
     }
 }
+void AssemblyInfo::calAsmSets_quick(){
+    for(int i=0;i<getEdgeNum();i++){
+        QVector3D v1,v2;
+        getEdge(i,v1,v2);
+        asmSets_push_back(AsmSet());
+        addCompToSet(asmSets[i],i);
+        asmSets[i].asmTerm.addRestrict((v2-v1).normalized(), AsmComp::flexAngle);
+        asmSets[i].asmTerm.addRestrict((v1-v2).normalized(), AsmComp::flexAngle);
+        getAsmSetNeighborEdges(asmSets[i]);
+    }
+    for(int i=0;i<asmSets_size;i++){
+        combination_Best.push_back(i);
+    }
+}
 
 void AssemblyInfo::calAsmSets(){
     for(int i=0;i<getEdgeNum();i++){
@@ -195,6 +209,7 @@ void AssemblyInfo::calAsmSets(){
                     getAsmSetNeighborEdges(newAsmSet);//can be faster(now is exhaustive)
                     newAsmSet.asmTerm.addRestrict((v2-v1).normalized(), AsmComp::flexAngle);
                     newAsmSet.asmTerm.addRestrict((v1-v2).normalized(), AsmComp::flexAngle);
+                    newAsmSet.nodes.insert(info.parentVertice);
                     for(auto paredge:info.parentEdges){
                         int parvert = info.parentVertice;
                         QVector3D parv1,parv2;
@@ -226,9 +241,13 @@ void AssemblyInfo::calCombination(){
     combination_Val = FLT_MIN;
     std::stack<int> stack;
     bool * edgeVisited;
-    edgeVisited = (bool*)malloc(getVerticeNum()*sizeof(bool));
+    edgeVisited = (bool*)malloc(getEdgeNum()*sizeof(bool));
     memset(edgeVisited,0,sizeof(edgeVisited));
+    bool * verticeVisited;
+    verticeVisited = (bool*)malloc(getVerticeNum()*sizeof(bool));
+    memset(verticeVisited,0,sizeof(verticeVisited));
     int edgeVisitedNum = 0;
+    int verticeVisitedNum = 0;
     int cur=asmSets_size-1;
     for(auto e:asmSets[cur].asmComps){
         edgeVisited[e.edge]=true;
@@ -243,10 +262,19 @@ void AssemblyInfo::calCombination(){
                     fit = false;
                 }
             }
+            for(auto v:asmSets[cur].nodes){
+                if(verticeVisited[v]){
+                    fit = false;
+                }
+            }
             if(fit){
                 for(auto e:asmSets[cur].asmComps){
                     edgeVisited[e.edge]=true;
                     edgeVisitedNum++;
+                }
+                for(auto v:asmSets[cur].nodes){
+                    verticeVisited[v]=true;
+                    verticeVisitedNum++;
                 }
                 stack.push(cur);
             }
@@ -274,6 +302,10 @@ void AssemblyInfo::calCombination(){
             edgeVisited[e.edge]=false;
             edgeVisitedNum--;
         }
+        for(auto v:asmSets[cur].nodes){
+            verticeVisited[v]=false;
+            verticeVisitedNum--;
+        }
         cur--;
     }
 
@@ -282,4 +314,198 @@ void AssemblyInfo::calCombination(){
 float AssemblyInfo::energyFunction(){
     return 1.0f/asmSets_size;
 }
+
+void AssemblyInfo::calLink(){
+
+    int * vertBelongToGroup;
+    vertBelongToGroup = (int*)malloc(getVerticeNum()*sizeof(int));
+    for(int i=0;i<getVerticeNum();i++){
+        vertBelongToGroup[i]=-1;
+    }
+    int * edgeBelongToGroup;
+    edgeBelongToGroup = (int*)malloc(getEdgeNum()*sizeof(int));
+    for(auto c:combination_Best){
+        AsmSet asmSet = myAsmSets[myAsmSets_size]=asmSets[c];
+        for(auto comp:asmSet.asmComps){
+            edgeBelongToGroup[comp.edge]=myAsmSets_size;
+        }
+        for(auto v:asmSet.nodes){
+            vertBelongToGroup[v]=myAsmSets_size;
+        }
+        myAsmSets_size++;
+    }
+    for(int i=0;i<getVerticeNum();i++){
+        if(neighbors[i].size()==1){
+           int neivert = *neighbors[i].begin();
+           int neiedge = edgesMap[i][neivert];
+           vertBelongToGroup[i]=edgeBelongToGroup[neiedge];
+        }
+    }
+    //-----------------------------------------------------------
+
+    std::vector<std::vector<int>> groupMap(myAsmSets_size, std::vector<int>(myAsmSets_size, 0));
+    std::vector<std::set<int>> groupNeighborList(myAsmSets_size, std::set<int>());
+    std::set<IdxPair> linkPair;
+    std::set<IdxPair> waitAssignSet;
+    std::vector<IdxPair> waitAssignVec;
+
+    for(int i=0;i<myAsmSets_size;i++){
+        int curgroup = i;
+        for(auto info:myAsmSets[i].infos){
+            int taredge = info.neighborEdge;
+            int curvert = info.parentVertice;
+            int targroup = edgeBelongToGroup[taredge];
+
+            linkPair.insert(IdxPair(curgroup,targroup));
+            groupNeighborList[curgroup].insert(targroup);
+            groupNeighborList[targroup].insert(curgroup);
+
+            if(myAsmSets[i].nodes.count(curvert)>0){
+                groupMap[curgroup][targroup]=1;
+                groupMap[targroup][curgroup]=-1;
+            }else{
+                groupMap[curgroup][targroup]=2;
+                groupMap[targroup][curgroup]=2;
+                waitAssignSet.insert(IdxPair(curgroup,targroup));
+            }
+
+        }
+    }
+    for(auto pair:waitAssignSet){waitAssignVec.push_back(pair);}
+    //-----------------------------------------------------------
+    int binary[1000]={0};
+    int wz = waitAssignVec.size();
+    int lz = linkPair.size();
+    int gz = myAsmSets_size;
+    int minLocker = INT_MAX;
+    int minBeginer = INT_MAX;
+    std::vector<std::vector<int>> myGroupMap_best;
+    while(binary[wz]==0){
+        std::vector<std::vector<int>> myGroupMap = groupMap;
+        std::vector<std::set<int>> myGroupNeighborList = groupNeighborList;
+        std::set<IdxPair> myLinkPair = linkPair;
+        for(int j=0;j<wz;j++){
+            int idx1 = waitAssignVec[j].idx1;
+            int idx2 = waitAssignVec[j].idx2;
+            if(binary[j]==0){
+                myGroupMap[idx1][idx2]=1;
+                myGroupMap[idx2][idx1]=-1;
+            }else{
+                myGroupMap[idx1][idx2]=-1;
+                myGroupMap[idx2][idx1]=1;
+            }
+        }
+
+        //-----------------------------
+
+        std::vector<int>depths(gz,-1);
+        std::queue<int> queue;
+        queue.push(0);
+        depths[0]=100;
+        bool nValid = false;
+
+        while(queue.size()>0){
+            nValid = false;
+            int cur = queue.front();
+            queue.pop();
+            std::vector<int> curGroupNeighborList;
+            for(auto tar : myGroupNeighborList[cur])curGroupNeighborList.push_back(tar);
+            for(auto tar : curGroupNeighborList){
+                if(depths[tar]==-1){
+                    depths[tar]=depths[cur]+myGroupMap[cur][tar];
+                    myGroupNeighborList[cur].erase(tar);
+                    myGroupNeighborList[tar].erase(cur);
+                    myLinkPair.erase(IdxPair(cur,tar));
+                    queue.push(tar);
+                }else if( (myGroupMap[cur][tar]<0&&depths[tar]>depths[cur])
+                        ||(myGroupMap[cur][tar]>0&&depths[tar]<depths[cur]))
+                {
+                    nValid = true;
+                    break;
+                }
+            }
+            if(nValid)break;
+        }
+        for(int i=0;i<myGroupNeighborList.size();i++){
+            if(myGroupNeighborList[i].size()!=0)nValid=true;
+        }
+        if(!nValid){
+            int lockernum = 0;
+            int beginernum = 0;
+            for(int i=0;i<groupNeighborList.size();i++){
+                bool islocker=true;
+                bool isbeginer=true;
+                for(auto g:groupNeighborList[i]){
+                    if(depths[i]<depths[g])islocker=false;
+                    if(depths[i]>depths[g])isbeginer=false;
+                }
+                if(islocker)lockernum++;
+                if(isbeginer)beginernum++;
+            }
+            if(minLocker>lockernum||(minLocker==lockernum&&minBeginer>beginernum)){
+               minLocker=lockernum;
+               minBeginer=beginernum;
+               myGroupMap_best = myGroupMap;
+            }
+            //-----------------
+            for(int i=0;i<wz;i++){
+                std::cout << binary[i] << " ";
+            }
+            std::cout << std::endl << "     ";
+            std::cout << "Locker Num : " << lockernum << std::endl;
+            std::cout << std::endl << "     ";
+            std::cout << "Beginer Num : " << beginernum << std::endl;
+            std::cout << std::endl << "     ";
+            std::cout << "Depths : ";
+            for(int i=0;i<gz;i++){
+                std::cout << depths[i] << " ";
+            }
+            std::cout << std::endl;
+        }
+        //-----------------------------
+
+        binary[0]++;
+        for(int j=0;binary[j]==2;j++){
+            if(binary[j]==2){
+                binary[j+1]++;
+                binary[j]=0;
+            }
+        }
+
+    }
+    //-----------------------------------------------------------
+    links.resize(getVerticeNum(),std::set<int>());
+
+    for(int i=0;i<myAsmSets_size;i++){
+        AsmSet asmSet = myAsmSets[i];
+        for(auto node:asmSet.nodes){
+            for(auto edge:neighbors[node]){
+                if(edgeBelongToGroup[edge]==vertBelongToGroup[node]){
+                    links[node].insert(edge);
+                }
+            }
+        }
+        int thisgroup = i;
+        for(auto info:asmSet.infos){
+            int thatgroup = edgeBelongToGroup[info.neighborEdge];
+            if(myGroupMap_best[thisgroup][thatgroup]==1){
+                links[info.parentVertice].insert(info.neighborEdge);
+            }
+        }
+
+    }
+
+    //-----------------
+    std::cout << std::endl;
+    std::cout << "Best Link :" << std::endl;
+    for(int i=0;i<links.size();i++){
+        std::cout <<"     "<< i<< " : ";
+        for(auto edge:links[i]){
+            std::cout << edge << " ";
+        }
+        std::cout << std::endl;
+    }
+
+}
+
 //clean the reallocate

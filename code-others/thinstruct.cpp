@@ -29,6 +29,31 @@ void ThinStruct::read(std::string file){
     assemblyInfo.calCombination();
 }
 
+void ThinStruct::read_(std::string file){
+    int verticesnum;
+    int edgesnum;
+    std::ifstream inputFile1(file.c_str());
+    inputFile1 >> verticesnum;
+    inputFile1 >> edgesnum;
+    vertices.clear();
+    edges.clear();
+    splitNorm.clear();
+    for(int i=0;i<verticesnum*3;i++){
+        float val;
+        inputFile1 >> val;
+        vertices.push_back(val);
+    }
+    for(int i=0;i<edgesnum*2;i++){
+        float val;
+        inputFile1 >> val;
+        edges.push_back(val);
+    }
+    inputFile1.close();
+    assemblyInfo = AssemblyInfo(vertices, edges);
+    assemblyInfo.calAsmSets_quick();
+    assemblyInfo.calLink();
+}
+
 void ThinStruct::read(std::string file1, std::string file2, std::string file3, std::string file4)
 {
     int verticesnum;

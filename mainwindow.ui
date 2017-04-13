@@ -177,6 +177,32 @@
      <string>Cal ST</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnCalSTLink">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>370</y>
+      <width>121</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ST Link Test</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnTest_3">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>400</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>3D Test2</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

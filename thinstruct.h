@@ -7,6 +7,7 @@ class ThinStruct
 public:
     ThinStruct();
     void read(std::string file);
+    void read_(std::string file);
     void read(std::string file1, std::string file2, std::string file3, std::string file4);
     AssemblyInfo assemblyInfo;
     std::vector<float> vertices;

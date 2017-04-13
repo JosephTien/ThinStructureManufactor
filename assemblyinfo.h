@@ -138,6 +138,7 @@ public:
     std::set<AsmComp> asmComps;
     AsmTerm asmTerm;
     std::set<neighborEdgeInfo> infos;
+    std::set<int> nodes;
     /*
     bool addInfo(neighborEdgeInfo info);
     bool delInfo(neighborEdgeInfo info);
@@ -241,13 +242,16 @@ public:
     std::vector<int> edges;
     std::vector<std::set<int>> neighbors;
     std::vector<std::vector<int>> edgesMap;
-    AsmSet asmSets[1000];
+    std::vector<std::set<int>> links;
+    AsmSet asmSets[1000];//becareful of the size
+    AsmSet myAsmSets[1000];
     int asmSets_size = 0;
+    int myAsmSets_size = 0;
     std::vector<int> asmSetsPrefix;
     std::vector<int> combination;
     std::vector<int> combination_Best;
     float combination_Val;
-    std::vector<int> verticeBelong;
+
 
     inline int getVerticeNum(){return vertices.size()/3;}
     inline int getEdgeNum(){return edges.size()/2;}
@@ -258,9 +262,40 @@ public:
     void getAsmSetNeighborEdges(AsmSet &asmSet);
     void addCompToSet(AsmSet &asmSet, int edge);
     void calAsmSets();
+    void calAsmSets_quick();
     void calCombination();
+    void calLink();
     float energyFunction();
+};
+class IdxPair{
+public:
+    int idx1;
+    int idx2;
+    IdxPair(int idx1,int idx2){
+        if(idx1>idx2){
+            int temp = idx1;
+            idx1=idx2;
+            idx2=temp;
+        }
+        this->idx1 = idx1;
+        this->idx2 = idx2;
+    }
+    bool operator < (const IdxPair& pair) const
+    {
+        if(this->idx1==pair.idx1)return this->idx2<pair.idx2;
+        return this->idx1<pair.idx1;
+    }
 
+    bool operator == (const IdxPair& pair) const
+    {
+        return this->idx1==pair.idx1&&this->idx2==pair.idx2;
+    }
+
+    bool operator > (const IdxPair& pair) const
+    {
+        if(this->idx1==pair.idx1)return this->idx2>pair.idx2;
+        return this->idx1>pair.idx1;
+    }
 };
 
 #endif // ASSEMBLYINFO_H
