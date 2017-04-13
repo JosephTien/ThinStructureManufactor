@@ -50,6 +50,7 @@ public:
     void genTest_6();
     void genTest_6_2();
     void genTest_7();
+    void genTest_7_2();
 
     QMatrix4x4 getRotateMatrix(QVector3D axis, QVector3D from, QVector3D to){
         from.normalize();

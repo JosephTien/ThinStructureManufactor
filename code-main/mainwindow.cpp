@@ -119,6 +119,9 @@ void MainWindow::on_btnTest_2_clicked(){
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
+void MainWindow::on_btnTest_3_clicked(){
+
+}
 
 /****************************************/
 
