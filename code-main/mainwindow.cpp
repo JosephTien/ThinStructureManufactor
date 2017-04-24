@@ -1,5 +1,26 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "maintainvar.h"
+#include "mainwindow_support.h"
+
+#include <qtconcurrentrun.h>
+
+MaintainVar var;
+MainWindow_support support;
+/*
+int threadState = 0;
+void threadCont(QString name){
+    while(true){
+        std::cout << "test" << std::endl;
+        QThread::sleep(1);
+        if(threadState==1){
+            support.genTest_6();
+            threadState = 0;
+        }
+    }
+}
+QFuture<void> thread = QtConcurrent::run(threadCont, QString("threadCont"));
+*/
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -115,12 +136,17 @@ void MainWindow::on_btnTest_clicked(){
 }
 
 void MainWindow::on_btnTest_2_clicked(){
+    //threadState=1;
     support.genTest_6();
     renew_cmbbObject();
     ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
-void MainWindow::on_btnTest_3_clicked(){
 
+void MainWindow::on_btnTest_3_clicked(){
+    ui->btnLoad_Manu->click();
+    support.genMolt();
+    renew_cmbbObject();
+    ui->cmbbObject->setCurrentIndex(ui->glMain->getTarnum());
 }
 
 /****************************************/

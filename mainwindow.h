@@ -1,9 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
-#include <maintainvar.h>
-#include <mainwindow_support.h>
 
 namespace Ui {
 class MainWindow;
@@ -58,8 +55,6 @@ private slots:
 private:
 
     Ui::MainWindow *ui;
-    MaintainVar var;
-    MainWindow_support support;
     void renew_cmbbObject();
 };
 
